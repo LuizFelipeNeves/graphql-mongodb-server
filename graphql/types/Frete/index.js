@@ -1,6 +1,6 @@
 export default `
   type Frete {
-    _id: ID
+    _id: ID!
     url: String!,
     origem: Location!,
     destino: Location!,
@@ -24,10 +24,15 @@ export default `
     sac: [String],
     empresa: Company!,
   }
+  type OutputFrete {
+    totalcount: Int!,
+    hasnextpage: Boolean!,
+    fretes: [Frete!]!
+  }
 
   type Query {
     frete(_id: ID!): Frete!
-    fretes: [Frete!]!
+    fretes(page: Int, perpage: Int): OutputFrete!
   }
 
   type Mutation {
