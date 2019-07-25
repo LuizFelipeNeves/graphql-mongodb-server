@@ -1,6 +1,6 @@
 export default `
   type User {
-    _id: String
+    _id: ID!
     first_name: String!
     last_name: String!
     email: String!
@@ -21,7 +21,6 @@ export default `
   }
 
   input CreateUserInput {
-    _id: String
     first_name: String!
     last_name: String!
     email: String!
@@ -31,7 +30,6 @@ export default `
   }
   
   input UpdateUserInput {
-    _id: String
     first_name: String
     last_name: String
     email: String
