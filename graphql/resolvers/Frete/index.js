@@ -7,33 +7,52 @@ export default {
     frete: async (parent, { _id }, context, info) => {
       return await Frete.findOne({ _id }).exec();
     },
-    fretes: async (parent, args, context, info) => {
-      const res = await Frete.find({})
+    fretes: async (
+      parent,
+      { page = 1, perpage = 10, veiculo, carroceria },
+      context,
+      info
+    ) => {
+      const query = {
+        veiculo,
+        carroceria
+      };
+
+      const res = await Frete.find(query)
+        .skip(perpage * (page - 1))
+        .limit(perpage)
         .populate()
         .exec();
 
+      const totalcount = await Frete.countDocuments(query);
+      const hasnextpage = page < totalcount / perpage;
+
       return {
-        _id: res._id.toString(),
-        url: res.url,
-        origem: res.origem,
-        destino: res.destino,
-        status: res.status,
-        km: res.km,
-        preco: res.preco,
-        peso: res.peso,
-        carga: res.carga,
-        especie: res.especie,
-        complemento: res.complemento,
-        rastreamento: res.rastreamento,
-        obs: res.obs,
-        veiculos: res.veiculos,
-        carrocerias: res.carrocerias,
-        nextel: res.nextel,
-        celular: res.celular,
-        fone: res.fone,
-        whatsapp: res.whatsapp,
-        sac: res.sac,
-        empresa: res.empresa
+        totalcount,
+        hasnextpage,
+        fretes: res.map(u => ({
+          _id: res._id.toString(),
+          url: res.url,
+          origem: res.origem,
+          destino: res.destino,
+          status: res.status,
+          km: res.km,
+          preco: res.preco,
+          peso: res.peso,
+          carga: res.carga,
+          especie: res.especie,
+          complemento: res.complemento,
+          rastreamento: res.rastreamento,
+          obs: res.obs,
+          veiculos: res.veiculos,
+          carrocerias: res.carrocerias,
+          nextel: res.nextel,
+          celular: res.celular,
+          fone: res.fone,
+          whatsapp: res.whatsapp,
+          sac: res.sac,
+          empresa: res.empresa
+        }))
       };
     }
   },
