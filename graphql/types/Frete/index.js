@@ -1,32 +1,32 @@
 export default `
   type Frete {
     _id: ID!
-    url: String!,
-    origem: Location!,
-    destino: Location!,
-    preco: String!,
+    url: String!
+    origem: Location!
+    destino: Location!
+    preco: String!
 
-    status: Boolean,
-    peso: String,
-    carga: String,
-    km: String,
-    especie: String,
-    complemento: String,
-    rastreamento: String,
-    obs: String,
+    status: Boolean
+    peso: String
+    carga: String
+    km: String
+    especie: String
+    complemento: String
+    rastreamento: String
+    obs: String
 
-    veiculos: [String],
-    carrocerias: [String],
-    nextel: [String],
-    celular: [String],
-    fone: [String],
-    whatsapp: [String],
-    sac: [String],
-    empresa: Company!,
+    veiculos: [String]
+    carrocerias: [String]
+    nextel: [String]
+    celular: [String]
+    fone: [String]
+    whatsapp: [String]
+    sac: [String]
+    empresa: Company!
   }
   type OutputFrete {
-    totalcount: Int!,
-    hasnextpage: Boolean!,
+    totalcount: Int!
+    hasnextpage: Boolean!
     fretes: [Frete!]!
   }
 
@@ -51,51 +51,51 @@ export default `
   }
 
   input CreateFreteInput {
-    url: String!,
-    origem: ID!,
-    destino: ID!,
-    status: Boolean,
-    peso: String,
-    carga: String,
-    preco: String,
-    km: String,
-    especie: String,
-    complemento: String,
-    rastreamento: String,
-    obs: String,
+    url: String!
+    origem: ID!
+    destino: ID!
+    status: Boolean
+    peso: String
+    carga: String
+    preco: String
+    km: String
+    especie: String
+    complemento: String
+    rastreamento: String
+    obs: String
     
-    veiculos: [String]!,
-    carrocerias: [String]!,
-    nextel: [String],
-    celular: [String],
-    fone: [String],
-    whatsapp: [String],
-    sac: [String],
-    empresa: ID!,
+    veiculos: [String]!
+    carrocerias: [String]!
+    nextel: [String]
+    celular: [String]
+    fone: [String]
+    whatsapp: [String]
+    sac: [String]
+    empresa: ID!
   }
   
   input UpdateFreteInput {
-    url: String,
-    origem: ID,
-    destino: ID,
-    status: Boolean,
-    peso: String,
-    carga: String,
-    preco: String,
-    km: String,
-    especie: String,
-    complemento: String,
-    rastreamento: String,
-    obs: String,
+    url: String
+    origem: ID
+    destino: ID
+    status: Boolean
+    peso: String
+    carga: String
+    preco: String
+    km: String
+    especie: String
+    complemento: String
+    rastreamento: String
+    obs: String
     
-    veiculos: [String],
-    carrocerias: [String],
-    nextel: [String],
-    celular: [String],
-    fone: [String],
-    whatsapp: [String],
-    sac: [String],
-    empresa: ID,
+    veiculos: [String]
+    carrocerias: [String]
+    nextel: [String]
+    celular: [String]
+    fone: [String]
+    whatsapp: [String]
+    sac: [String]
+    empresa: ID
   }
 
   enum MutationType {
