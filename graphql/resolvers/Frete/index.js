@@ -5,7 +5,9 @@ import { transformFrete } from "../merge";
 export default {
   Query: {
     frete: async (parent, { _id }, context, info) => {
-      return await Frete.findOne({ _id }).exec();
+      return await Frete.findOne({ _id })
+        .populate("origem destino empresa")
+        .exec();
     },
     fretes: async (
       parent,
@@ -21,10 +23,14 @@ export default {
       const res = await Frete.find(query)
         .skip(perpage * (page - 1))
         .limit(perpage)
-        .populate()
+        .populate("origem destino empresa")
         .exec();
 
-      const totalcount = await Frete.countDocuments(query);
+      console.log(res);
+
+      const totalcount = await Frete.countDocuments(query)
+        .populate("origem destino empresa")
+        .exec();
       const hasnextpage = page < totalcount / perpage;
 
       return {
@@ -59,28 +65,35 @@ export default {
   Mutation: {
     createFrete: async (parent, { frete }, context, info) => {
       const newFrete = await Frete.create({
-          url: frete.url,
-          origem: frete.origem,
-          destino: frete.destino,
-          status: frete.status,
-          km: frete.km,
-          preco: frete.preco,
-          peso: frete.peso,
-          carga: frete.carga,
-          especie: frete.especie,
-          complemento: frete.complemento,
-          rastreamento: frete.rastreamento,
-          obs: frete.obs,
-          veiculos: frete.veiculos,
-          carrocerias: frete.carrocerias,
-          nextel: frete.nextel,
-          celular: frete.celular,
-          fone: frete.fone,
-          whatsapp: frete.whatsapp,
-          sac: frete.sac,
-          empresa: frete.empresa
+        url: frete.url,
+        origem: frete.origem,
+        destino: frete.destino,
+        status: frete.status,
+        km: frete.km,
+        preco: frete.preco,
+        peso: frete.peso,
+        carga: frete.carga,
+        especie: frete.especie,
+        complemento: frete.complemento,
+        rastreamento: frete.rastreamento,
+        obs: frete.obs,
+        veiculos: frete.veiculos,
+        carrocerias: frete.carrocerias,
+        nextel: frete.nextel,
+        celular: frete.celular,
+        fone: frete.fone,
+        whatsapp: frete.whatsapp,
+        sac: frete.sac,
+        empresa: frete.empresa
       });
+
       try {
+        const creator = await Company.findById(frete.empresa);
+        if (!creator) {
+          throw new Error("Company not found.");
+        }
+        // TODOME: Check exist origem/destino
+
         // const result = await newFrete.save();
         const result = await new Promise((resolve, reject) => {
           newFrete.save((err, res) => {
@@ -88,11 +101,6 @@ export default {
           });
         });
         const createdFrete = transformFrete(result);
-        const creator = await Company.findById(frete.empresa);
-
-        if (!creator) {
-          throw new Error("Company not found.");
-        }
         creator.fretes.push(newFrete);
         await creator.save();
         return createdFrete;
