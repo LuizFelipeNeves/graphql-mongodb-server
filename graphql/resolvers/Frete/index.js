@@ -31,57 +31,55 @@ export default {
         totalcount,
         hasnextpage,
         fretes: res.map(u => ({
-          _id: res._id.toString(),
-          url: res.url,
-          origem: res.origem,
-          destino: res.destino,
-          status: res.status,
-          km: res.km,
-          preco: res.preco,
-          peso: res.peso,
-          carga: res.carga,
-          especie: res.especie,
-          complemento: res.complemento,
-          rastreamento: res.rastreamento,
-          obs: res.obs,
-          veiculos: res.veiculos,
-          carrocerias: res.carrocerias,
-          nextel: res.nextel,
-          celular: res.celular,
-          fone: res.fone,
-          whatsapp: res.whatsapp,
-          sac: res.sac,
-          empresa: res.empresa
+          _id: u._id.toString(),
+          url: u.url,
+          origem: u.origem,
+          destino: u.destino,
+          status: u.status,
+          km: u.km,
+          preco: u.preco,
+          peso: u.peso,
+          carga: u.carga,
+          especie: u.especie,
+          complemento: u.complemento,
+          rastreamento: u.rastreamento,
+          obs: u.obs,
+          veiculos: u.veiculos,
+          carrocerias: u.carrocerias,
+          nextel: u.nextel,
+          celular: u.celular,
+          fone: u.fone,
+          whatsapp: u.whatsapp,
+          sac: u.sac,
+          empresa: u.empresa
         }))
       };
     }
   },
   Mutation: {
     createFrete: async (parent, { frete }, context, info) => {
-      const json = ({
-        url,
-        origem,
-        destino,
-        status,
-        km,
-        preco,
-        peso,
-        carga,
-        especie,
-        complemento,
-        rastreamento,
-        obs,
-        veiculos,
-        carrocerias,
-        nextel,
-        celular,
-        fone,
-        whatsapp,
-        sac,
-        empresa
-      } = frete);
-
-      const newFrete = await Frete.create(json);
+      const newFrete = await Frete.create({
+          url: frete.url,
+          origem: frete.origem,
+          destino: frete.destino,
+          status: frete.status,
+          km: frete.km,
+          preco: frete.preco,
+          peso: frete.peso,
+          carga: frete.carga,
+          especie: frete.especie,
+          complemento: frete.complemento,
+          rastreamento: frete.rastreamento,
+          obs: frete.obs,
+          veiculos: frete.veiculos,
+          carrocerias: frete.carrocerias,
+          nextel: frete.nextel,
+          celular: frete.celular,
+          fone: frete.fone,
+          whatsapp: frete.whatsapp,
+          sac: frete.sac,
+          empresa: frete.empresa
+      });
       try {
         // const result = await newFrete.save();
         const result = await new Promise((resolve, reject) => {
