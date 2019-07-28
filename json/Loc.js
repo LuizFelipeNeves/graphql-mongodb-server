@@ -10,6 +10,10 @@ ObjectID.prototype.valueOf = function() {
 /* https://mongoosejs.com/docs/geojson.html */
 
 const LocSchema = new Schema({
+  codigo: {
+    type: String,
+    required: true
+  },
   cidade: {
     type: String,
     required: true
@@ -19,7 +23,7 @@ const LocSchema = new Schema({
       type: String,
       required: true
     },
-    nome: {
+    name: {
       type: String,
       required: true
     }

@@ -2,6 +2,8 @@ require("dotenv").config();
 
 const fs = require("fs");
 const mongoose = require("mongoose");
+const ObjectId = require('mongodb').ObjectID;
+
 mongoose.connect(process.env.mongoURI, {
   useCreateIndex: true,
   useNewUrlParser: true
@@ -16,5 +18,3 @@ municipios.map(e =>
     console.log(e.cidade);
   })
 );
-
-console.log("fim");
