@@ -11,6 +11,7 @@ const CompanySchema = new Schema(
   {
     name: {
       type: String,
+      unique: true,
       required: true
     },
     logo: {
@@ -22,10 +23,10 @@ const CompanySchema = new Schema(
       type: Number,
       default: 0
     },
-    fretes: [
+    freights: [
       {
         type: Schema.Types.ObjectId,
-        ref: "Frete"
+        ref: "Freight"
       }
     ]
   },

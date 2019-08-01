@@ -1,10 +1,18 @@
 import Company from "../../../server/models/Company";
-import Frete from "../../../server/models/Frete";
+import Freight from "../../../server/models/Freight";
 
 export default {
   Query: {
-    company: async (parent, { _id }, context, info) => {
-      return await Company.findOne({ _id }).exec();
+    company: async (parent, args, context, info) => {
+      if (!args) {
+        throw new Error("Insert an param.");
+      }
+
+      const company = await Company.findOne(args).exec();
+      if (!company) {
+        throw new Error("Company not found.");
+      }
+      return company;
     },
     companys: async (parent, args, context, info) => {
       const companys = await Company.find({})
@@ -16,7 +24,7 @@ export default {
         name: u.name,
         logo: u.logo,
         level: u.level,
-        fretes: u.fretes
+        freights: u.freights
       }));
     }
   },
@@ -26,7 +34,7 @@ export default {
         name: company.name,
         logo: company.logo,
         level: company.level,
-        fretes: company.fretes
+        freights: company.freights
       });
 
       return new Promise((resolve, reject) => {
@@ -55,8 +63,8 @@ export default {
     }
   },
   Company: {
-    fretes: async ({ _id }, args, context, info) => {
-      return await Frete.find({ empresa: _id });
+    freights: async ({ _id }, args, context, info) => {
+      return await Freight.find({ company: _id });
     }
   }
 };

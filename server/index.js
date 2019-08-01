@@ -13,7 +13,8 @@ const options = {
   port: process.env.PORT || "4000",
   endpoint: "/graphql",
   subscriptions: "/subscriptions",
-  playground: "/playground"
+  playground: "/playground",
+  bodyParserOptions: "text"
 };
 
 const context = {
@@ -23,13 +24,10 @@ const context = {
 
 // Connect to MongoDB with Mongoose.
 mongoose
-  .connect(
-    db,
-    {
-      useCreateIndex: true,
-      useNewUrlParser: true
-    }
-  )
+  .connect(db, {
+    useCreateIndex: true,
+    useNewUrlParser: true
+  })
   .then(() => console.log("MongoDB connected"))
   .catch(err => console.log(err));
 

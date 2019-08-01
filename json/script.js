@@ -12,9 +12,9 @@ const getEstado = codigo => {
 
 municipios.map(e =>
   final.push({
-    codigo: e.codigo_ibge
-    cidade: e.nome,
-    estado: getEstado(e.codigo_uf),
+    code: e.codigo_ibge,
+    city: e.nome,
+    state: getEstado(e.codigo_uf),
     location: {
       type: "Point",
       coordinates: [e.latitude, e.longitude]

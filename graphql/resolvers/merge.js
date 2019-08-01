@@ -6,14 +6,14 @@ const company = async companyId => {
     return {
       ...company._doc,
       _id: company.id,
-      createdFretes: freteMessage.bind(this, company._doc.createdFretes)
+      createdFreights: freightMessage.bind(this, company._doc.createdFreights)
     };
   } catch (error) {
     throw error;
   }
 };
 
-const transformFrete = event => {
+const transformFreight = event => {
   return {
     ...event._doc,
     _id: event.id,
@@ -21,4 +21,4 @@ const transformFrete = event => {
   };
 };
 
-exports.transformFrete = transformFrete;
+exports.transformFreight = transformFreight;

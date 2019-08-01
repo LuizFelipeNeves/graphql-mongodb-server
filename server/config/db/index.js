@@ -1,12 +1,12 @@
 import User from "../../models/User";
 import Company from "../../models/Company";
-import Frete from "../../models/Frete";
-import Loc from "../../models/Loc";
+import Freight from "../../models/Freight";
+import Location from "../../models/Location";
 
 
 export const models = {
   User,
   Company,
-  Frete,
-  Loc,
+  Freight,
+  Location,
 };

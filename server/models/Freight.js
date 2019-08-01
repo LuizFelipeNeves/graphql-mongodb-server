@@ -7,49 +7,48 @@ ObjectID.prototype.valueOf = function() {
   return this.toString();
 };
 
-const FreteSchema = new Schema(
+const FreightSchema = new Schema(
   {
-    url: {
-      type: String,
-      unique: true,
-      required: true
-    },
-
-    origem: {
+    origin: {
       type: Schema.Types.ObjectId,
-      ref: "Loc"
+      ref: "Location"
     },
-    destino: {
+    destination: {
       type: Schema.Types.ObjectId,
-      ref: "Loc"
+      ref: "Location"
     },
     status: {
       type: Boolean,
       default: true
     },
     km: String,
-    peso: String,
-    preco: String,
-    carga: String,
+    weight: String,
+    price: String,
+    cargo: String,
     km: String,
     especie: String,
-    complemento: String,
-    rastreamento: String,
-    obs: String,
-    veiculos: [{ type: String }],
-    carrocerias: [{ type: String }],
+    complement: String,
+    tracking: String,
+    note: String,
+    vehicles: [{ type: String }],
+    bodies: [{ type: String }],
     nextel: [{ type: String }],
-    celular: [{ type: String }],
-    fone: [{ type: String }],
+    cellphone: [{ type: String }],
+    telephone: [{ type: String }],
     whatsapp: [{ type: String }],
     sac: [{ type: String }],
 
-    empresa: {
+    company: {
       type: Schema.Types.ObjectId,
       ref: "Company"
-    }
+    },
+    url: {
+      type: String,
+      unique: true
+    },
+    site: String
   },
   { timestamps: { updatedAt: "updated_at", createdAt: "created_at" } }
 );
 
-export default mongoose.model("Frete", FreteSchema);
+export default mongoose.model("Freight", FreightSchema);

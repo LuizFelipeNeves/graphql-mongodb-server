@@ -4,15 +4,15 @@ export default `
     name: String!
     logo: String!
     level: Int
-    fretes: [Frete!]!
+    freights: [Freight!]!
   }
 
   type Query {
-    company(_id: ID!): Company!
+    company(_id: ID, name: String): Company!
     companys: [Company!]!
   }
   type Mutation {
-    createCompany(company: CreateCompanyInput): Company!
+    createCompany(company: CreateCompanyInput!): Company!
     updateCompany(_id: String!, company: UpdateCompanyInput!): Company!
     deleteCompany(_id: String!): Company!
   }

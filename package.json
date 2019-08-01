@@ -13,7 +13,7 @@
     "boilerplate",
     "server"
   ],
-  "author": "Leonardo Maldonado <leonardomso11@gmail.com>",
+  "author": "Luiz Felipe Neves <luizfelipe2310@gmail.com>",
   "license": "MIT",
   "devDependencies": {
     "@babel/cli": "^7.5.5",
@@ -45,6 +45,7 @@
     "react-testing-library": "^8.0.1"
   },
   "dependencies": {
+    "@entria/graphql-mongo-helpers": "0.0.1",
     "bcrypt": "^3.0.6",
     "concurrently": "^4.1.1",
     "core-js": "^3.1.4",

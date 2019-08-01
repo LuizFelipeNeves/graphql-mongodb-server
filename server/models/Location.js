@@ -10,15 +10,15 @@ ObjectID.prototype.valueOf = function() {
 /* https://mongoosejs.com/docs/geojson.html */
 
 const LocSchema = new Schema({
-  codigo: {
+  code: {
     type: String,
     required: true
   },
-  cidade: {
+  city: {
     type: String,
     required: true
   },
-  estado: {
+  state: {
     uf: {
       type: String,
       required: true
@@ -43,4 +43,4 @@ const LocSchema = new Schema({
 
 LocSchema.index({ coordinates: "2dsphere" });
 
-export default mongoose.model("Loc", LocSchema);
+export default mongoose.model("Location", LocSchema);
