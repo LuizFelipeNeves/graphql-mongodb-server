@@ -25,15 +25,33 @@ export default `
     sac: [String]
     company: Company!
   }
+
   type OutputFreight {
     totalcount: Int!
     hasnextpage: Boolean!
     freights: [Freight!]!
   }
 
+  input InputFreights {
+    status: Boolean
+    origin: InputLocation
+    destination: InputLocation
+    company: InputFreightCompany
+    
+    vehicles: [String]
+    bodies: [String]
+  }
+
+  input InputFreightCompany {
+    _id: ID
+    name: String
+    logo: String
+    level: Int
+  }
+
   type Query {
     freight(_id: ID!): Freight!
-    freights(page: Int, perpage: Int, status: Boolean, origin: ID, destination: ID, vehicles: [String], bodies: [String]): OutputFreight!
+    freights(page: Int, perpage: Int, filter: InputFreights): OutputFreight!
   }
 
   type Mutation {

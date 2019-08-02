@@ -32,14 +32,14 @@ const LocationFilterMapping = {
 export default {
   Query: {
     location: async (parent, args, context, info) => {
-      if (!args) {
+      if (!args.filter) {
           throw new Error("Insert a param.");
       }
-      const filterResult = buildMongoConditionsFromFilters(null, args, LocationFilterMapping)
+      const filterResult = buildMongoConditionsFromFilters(null, args.filter, LocationFilterMapping)
       return await Location.findOne(filterResult.conditions).exec()
     },
     locations: async (parent, args, context, info) => {
-      const filterResult = buildMongoConditionsFromFilters(null, args, LocationFilterMapping)
+      const filterResult = buildMongoConditionsFromFilters(null, args.fiter, LocationFilterMapping)
       const locations = await Location.find(filterResult.conditions).exec();
 
       return locations.map(u => ({

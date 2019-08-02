@@ -1,6 +1,135 @@
 import Freight from "../../../server/models/Freight";
 import Company from "../../../server/models/Company";
 import { transformFreight } from "../merge";
+import { buildMongoConditionsFromFilters, FILTER_CONDITION_TYPE } from '@entria/graphql-mongo-helpers';
+
+const stringToRegexQuery = (val) => {
+  return { $regex: new RegExp(val) }
+}
+
+const FreightFilterMapping = {
+  site: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+  },
+  status: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+  },
+  km: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+  },
+  price: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    format: stringToRegexQuery
+  },
+  weight: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    format: stringToRegexQuery
+  },
+  cargo: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    format: stringToRegexQuery
+  },
+  especie: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    format: stringToRegexQuery
+  },
+  complement: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    format: stringToRegexQuery
+  },
+  tracking: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    format: stringToRegexQuery
+  },
+  note: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    format: stringToRegexQuery
+  },
+  vehicles: {
+    type: FILTER_CONDITION_TYPE.CUSTOM_CONDITION,
+    format: vehicles => {
+      if (!vehicles) return []
+      return { vehicles: { $in: vehicles } };
+    },
+  },
+  bodies: {
+    type: FILTER_CONDITION_TYPE.CUSTOM_CONDITION,
+    format: bodies => {
+      if (!bodies) return []
+      return { bodies: { $in: bodies } };
+    },
+  },
+  origin: {
+      code: {
+        type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+        //format: stringToRegexQuery
+      },
+      city: {
+        type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+        //format: stringToRegexQuery
+      },
+      state: {
+        uf: {
+          type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+          key: 'state.name'
+        }
+      },
+      state: {
+        name: {
+          type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+          key: 'state.uf'
+        }
+      },
+  },
+  destination: {
+      code: {
+        type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+        //format: stringToRegexQuery
+      },
+      city: {
+        type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+        //format: stringToRegexQuery
+      },
+      state: {
+        uf: {
+          type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+          key: 'state.name'
+        }
+      },
+      state: {
+        name: {
+          type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+          key: 'state.uf'
+        }
+      },
+  },
+  /*
+      name: {
+        type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+      },
+      level: {
+        type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+      },
+      _id: {
+        type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+      },
+
+  */
+  
+  company: {
+      type: FILTER_CONDITION_TYPE.AGGREGATE_PIPELINE,
+      pipeline: value => [
+        { 
+          $lookup: {
+            from: "company",
+            localField: "name",
+            foreignField: "name",
+            as: "company"
+          },
+        },
+      ]
+  },
+}
 
 export default {
   Query: {
@@ -9,37 +138,21 @@ export default {
         .populate("origin destination company")
         .exec();
     },
-    freights: async (
-      parent,
-      {
-        page = 1,
-        perpage = 10,
-        status = true,
+    freights: async (parent, args, context, info) => {
+      const { page, perpage } = args
+      const filterResult = buildMongoConditionsFromFilters(null, args.filter, FreightFilterMapping)
+      console.log(filterResult.conditions)
 
-        origin,
-        destination,
-        vehicles,
-        bodies
-      },
-      context,
-      info
-    ) => {
-      const query = {};
-      if (status) query.status = status;
-      if (origin) query.origin = origin;
-      if (destination) query.destination = destination;
-      if (vehicles) query.vehicles = { $in: vehicles };
-      if (bodies) query.bodies = { $in: bodies };
-
-      const res = await Freight.find(query)
+      const res = await Freight.find(filterResult.conditions)
         .skip(perpage * (page - 1))
         .limit(perpage)
         .populate("origin destination company")
         .exec();
 
-      const totalcount = await Freight.countDocuments(query)
+      const totalcount = await Freight.countDocuments(filterResult.conditions)
         .populate("origin destination company")
         .exec();
+
       const hasnextpage = page < totalcount / perpage;
 
       return {
@@ -105,7 +218,7 @@ export default {
         }
         // TODOME: Check exist origin/destination
 
-        // const result = await newFreight.save();
+        // const result = await newFreight.save(); // TODOFIX: DEVERIA RETORNAR O FRETE COM AS AGREGACOES
         const result = await new Promise((resolve, reject) => {
           newFreight.save((err, res) => {
             err ? reject(err) : resolve(res);

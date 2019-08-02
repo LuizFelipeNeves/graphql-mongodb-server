@@ -16,11 +16,20 @@ export default `
     coordinates: [Float]!
   }
 
-  input InputState {
-    uf: String!
-    name: String!
+  input InputLocation {
+    _id: ID
+    code: String
+    city: String
+    state: InputState2
+    location: InputPosition2
   }
-  input InputPosition {
+  
+  input InputState2 {
+    uf: String
+    name: String
+  }
+
+  input InputPosition2 {
     type: String!
     coordinates: [Float]!
   }
@@ -30,15 +39,37 @@ export default `
     name: String
   }
 
+  input InputQueryLocation {
+    _id: ID
+    code: String
+    city: String
+    state: InputStateLocation
+  } 
+
+  input InputQueryLocations {
+    city: String,
+    state: InputStateLocation
+  }
+
   type Query {
-    location(_id: ID, code: String, city: String, state: InputStateLocation): Location!
-    locations(city: String, state: InputStateLocation): [Location!]!
+    location(filter: InputQueryLocation): Location!
+    locations(filter: InputQueryLocations): [Location!]!
   }
 
   type Mutation {
     createLocation(location: CreateLocationInput): Location!
     updateLocation(_id: ID!, location: UpdateLocationInput): Location!
     deleteLocation(_id: ID!): Location!
+  }
+
+  input InputState {
+    uf: String!
+    name: String!
+  }
+
+  input InputPosition {
+    type: String!
+    coordinates: [Float]!
   }
 
   input CreateLocationInput {
@@ -51,7 +82,7 @@ export default `
   input UpdateLocationInput {
     code: String
     city: String
-    state: InputState
-    location: InputPosition
-  } 
+    state: InputState2
+    location: InputPosition2
+  }
 `;
