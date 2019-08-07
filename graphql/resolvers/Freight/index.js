@@ -103,31 +103,37 @@ const FreightFilterMapping = {
         }
       },
   },
-  /*
-      name: {
-        type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-      },
-      level: {
-        type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-      },
-      _id: {
-        type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-      },
 
+  /*
+      
   */
-  
   company: {
       type: FILTER_CONDITION_TYPE.AGGREGATE_PIPELINE,
       pipeline: value => [
-        { 
+        {
           $lookup: {
-            from: "company",
-            localField: "name",
-            foreignField: "name",
-            as: "company"
+            localField: 'company',
+            from: 'company',
+            foreignField: '_id',
+            as: 'company',
           },
         },
-      ]
+        {
+          $unwind: "$company"
+        },
+      ],
+      name: {
+        type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+        key: 'company.name'
+      },
+      level: {
+        type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+        key: 'company.level'
+      },
+      _id: {
+        type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+        key: 'company._id'
+      },
   },
 }
 
@@ -140,17 +146,21 @@ export default {
     },
     freights: async (parent, args, context, info) => {
       const { page, perpage } = args
+
       const filterResult = buildMongoConditionsFromFilters(null, args.filter, FreightFilterMapping)
-      console.log(filterResult.conditions)
+      const { conditions, pipeline } = filterResult.conditions;
+      //const finalPipeline = [{ $match: conditions }, ...pipeline];
+
+      console.log(conditions, pipeline)
 
       const res = await Freight.find(filterResult.conditions)
         .skip(perpage * (page - 1))
         .limit(perpage)
-        .populate("origin destination company")
+        .populate("origin destination") // company
         .exec();
 
       const totalcount = await Freight.countDocuments(filterResult.conditions)
-        .populate("origin destination company")
+        .populate("origin destination") // company
         .exec();
 
       const hasnextpage = page < totalcount / perpage;
