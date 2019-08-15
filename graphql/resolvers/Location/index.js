@@ -1,54 +1,78 @@
 import Location from "../../../server/models/Location";
-import { buildMongoConditionsFromFilters, FILTER_CONDITION_TYPE } from '@entria/graphql-mongo-helpers';
+import {
+  buildMongoConditionsFromFilters,
+  FILTER_CONDITION_TYPE
+} from "@entria/graphql-mongo-helpers";
 
-const stringToRegexQuery = (val) => {
-  return { $regex: new RegExp(val) }
-}
+const stringToRegexQuery = val => {
+  return { $regex: new RegExp(val) };
+};
 
 const LocationFilterMapping = {
   code: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
     //format: stringToRegexQuery
   },
   city: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
     //format: stringToRegexQuery
   },
   state: {
     uf: {
       type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-      key: 'state.uf'
+      key: "state.uf"
     }
   },
   state: {
     name: {
       type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-      key: 'state.name'
+      key: "state.name"
     }
-  },
-}
-
+  }
+};
 
 export default {
   Query: {
     location: async (parent, args, context, info) => {
       if (!args.filter) {
-          throw new Error("Insert a param.");
+        throw new Error("Insert a param.");
       }
-      const filterResult = buildMongoConditionsFromFilters(null, args.filter, LocationFilterMapping)
-      return await Location.findOne(filterResult.conditions).exec()
+      const filterResult = buildMongoConditionsFromFilters(
+        null,
+        args.filter,
+        LocationFilterMapping
+      );
+      return await Location.findOne(filterResult.conditions).exec();
     },
     locations: async (parent, args, context, info) => {
-      const filterResult = buildMongoConditionsFromFilters(null, args.fiter, LocationFilterMapping)
-      const locations = await Location.find(filterResult.conditions).exec();
+      const { page, perpage } = args;
+      const filterResult = buildMongoConditionsFromFilters(
+        null,
+        args.fiter,
+        LocationFilterMapping
+      );
+      const locations = await Location.find(filterResult.conditions)
+        .skip(perpage * (page - 1))
+        .limit(perpage)
+        .exec();
 
-      return locations.map(u => ({
-        _id: u._id.toString(),
-        code: u.code,
-        city: u.city,
-        state: u.state,
-        location: u.location,
-      }));
+      const totalcount = await Location.countDocuments(
+        filterResult.conditions
+      ).exec();
+
+      const hasnextpage = page < totalcount / perpage;
+
+      return {
+        totalcount,
+        hasnextpage,
+        locations: locations.map(u => ({
+          _id: u._id.toString(),
+          code: u.code,
+          city: u.city,
+          state: u.state,
+          location: u.location
+        }))
+      };
     }
   },
   Mutation: {
@@ -57,7 +81,7 @@ export default {
         code: location.code,
         city: location.city,
         state: location.state,
-        location: location.location,
+        location: location.location
       });
 
       return new Promise((resolve, reject) => {
@@ -68,11 +92,13 @@ export default {
     },
     updateLocation: async (parent, { _id, location }, context, info) => {
       return new Promise((resolve, reject) => {
-        Location.findByIdAndUpdate(_id, { $set: { ...location } }, { new: true }).exec(
-          (err, res) => {
-            err ? reject(err) : resolve(res);
-          }
-        );
+        Location.findByIdAndUpdate(
+          _id,
+          { $set: { ...location } },
+          { new: true }
+        ).exec((err, res) => {
+          err ? reject(err) : resolve(res);
+        });
       });
     },
     deleteLocation: async (parent, { _id }, context, info) => {

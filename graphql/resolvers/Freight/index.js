@@ -1,5 +1,6 @@
 import Freight from "../../../server/models/Freight";
 import Company from "../../../server/models/Company";
+import Location from "../../../server/models/Location";
 import { transformFreight } from "../merge";
 import { buildMongoConditionsFromFilters, FILTER_CONDITION_TYPE } from '@entria/graphql-mongo-helpers';
 
@@ -16,6 +17,7 @@ const FreightFilterMapping = {
   },
   km: {
     type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    format: stringToRegexQuery
   },
   price: {
     type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
@@ -62,11 +64,9 @@ const FreightFilterMapping = {
   origin: {
       code: {
         type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-        //format: stringToRegexQuery
       },
       city: {
         type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-        //format: stringToRegexQuery
       },
       state: {
         uf: {
@@ -84,11 +84,9 @@ const FreightFilterMapping = {
   destination: {
       code: {
         type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-        //format: stringToRegexQuery
       },
       city: {
         type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-        //format: stringToRegexQuery
       },
       state: {
         uf: {
@@ -103,10 +101,6 @@ const FreightFilterMapping = {
         }
       },
   },
-
-  /*
-      
-  */
   company: {
       type: FILTER_CONDITION_TYPE.AGGREGATE_PIPELINE,
       pipeline: value => [
@@ -223,10 +217,13 @@ export default {
 
       try {
         const creator = await Company.findById(freight.company);
-        if (!creator) {
-          throw new Error("Company not found.");
-        }
-        // TODOME: Check exist origin/destination
+        if (!creator) throw new Error("Company not found.");
+
+        const origin = await Location.findById(freight.origin);
+        if (!origin) throw new Error("Origin not found.");
+
+        const destination = await Location.findById(freight.destination);
+        if (!destination) throw new Error("Destination not found.");
 
         // const result = await newFreight.save(); // TODOFIX: DEVERIA RETORNAR O FRETE COM AS AGREGACOES
         const result = await new Promise((resolve, reject) => {

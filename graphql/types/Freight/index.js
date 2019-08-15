@@ -34,8 +34,8 @@ export default `
 
   input InputFreights {
     status: Boolean
-    origin: InputLocation
-    destination: InputLocation
+    origin: UpdateLocationInput
+    destination: UpdateLocationInput
     company: InputFreightCompany
     
     vehicles: [String]
@@ -108,7 +108,7 @@ export default `
     complement: String
     tracking: String
     note: String
-    
+
     vehicles: [String]
     bodies: [String]
     nextel: [String]

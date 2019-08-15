@@ -6,9 +6,7 @@ export default {
       return await User.findOne({ _id }).exec();
     },
     users: async (parent, args, context, info) => {
-      const users = await User.find({})
-        .populate()
-        .exec();
+      const users = await User.find({}).exec();
 
       return users.map(u => ({
         _id: u._id.toString(),

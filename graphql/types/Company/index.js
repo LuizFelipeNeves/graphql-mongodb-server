@@ -7,10 +7,15 @@ export default `
     freights: [Freight!]!
   }
 
+  input InputCompanys {
+    level: Int
+  }
+
   type Query {
     company(_id: ID, name: String): Company!
-    companys: [Company!]!
+    companys(page: Int, perpage: Int, filter: InputCompanys): [Company!]!
   }
+
   type Mutation {
     createCompany(company: CreateCompanyInput!): Company!
     updateCompany(_id: String!, company: UpdateCompanyInput!): Company!
@@ -26,5 +31,12 @@ export default `
     name: String
     logo: String
     level: Int
-  } 
+  }
 `;
+
+/*
+type InputCompanys {
+  level: Int
+  name: String 
+}
+*/

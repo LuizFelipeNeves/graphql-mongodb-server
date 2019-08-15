@@ -1,5 +1,25 @@
 import Company from "../../../server/models/Company";
 import Freight from "../../../server/models/Freight";
+import {
+  buildMongoConditionsFromFilters,
+  FILTER_CONDITION_TYPE
+} from "@entria/graphql-mongo-helpers";
+
+const stringToRegexQuery = val => {
+  return { $regex: new RegExp(val) };
+};
+
+const CompanyFilterMapping = {
+  level: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
+  },
+  /*
+  name: {
+      type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
+      format: stringToRegexQuery
+  },
+  */
+};
 
 export default {
   Query: {
@@ -15,9 +35,13 @@ export default {
       return company;
     },
     companys: async (parent, args, context, info) => {
-      const companys = await Company.find({})
-        .populate()
-        .exec();
+      const filterResult = buildMongoConditionsFromFilters(
+        null,
+        args.filter,
+        CompanyFilterMapping
+      );
+
+      const companys = await Company.find(filterResult.conditions).populate().exec();
 
       return companys.map(u => ({
         _id: u._id.toString(),

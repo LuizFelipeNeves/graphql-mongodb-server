@@ -16,44 +16,31 @@ export default `
     coordinates: [Float]!
   }
 
-  input InputLocation {
-    _id: ID
-    code: String
-    city: String
-    state: InputState2
-    location: InputPosition2
-  }
-  
-  input InputState2 {
+  input InputStateOptional {
     uf: String
     name: String
   }
 
-  input InputPosition2 {
-    type: String!
-    coordinates: [Float]!
-  }
-
-  input InputStateLocation {
-    uf: String
-    name: String
+  input InputStateRequired {
+    uf: String!
+    name: String!
   }
 
   input InputQueryLocation {
     _id: ID
     code: String
     city: String
-    state: InputStateLocation
+    state: InputStateOptional
   } 
 
   input InputQueryLocations {
     city: String,
-    state: InputStateLocation
+    state: InputStateOptional
   }
 
   type Query {
     location(filter: InputQueryLocation): Location!
-    locations(filter: InputQueryLocations): [Location!]!
+    locations(page: Int, perpage: Int, filter: InputQueryLocations): OutputLocations
   }
 
   type Mutation {
@@ -62,27 +49,34 @@ export default `
     deleteLocation(_id: ID!): Location!
   }
 
-  input InputState {
-    uf: String!
-    name: String!
+  input InputPositionRequired {
+    type: String!
+    coordinates: [Float]!
   }
 
-  input InputPosition {
-    type: String!
+  input InputPositionOptional {
+    type: String
     coordinates: [Float]!
   }
 
   input CreateLocationInput {
     code: String!
     city: String!
-    state: InputState!
-    location: InputPosition!
+    state: InputStateRequired!
+    location: InputPositionRequired!
   }
-  
+
   input UpdateLocationInput {
+    _id: ID
     code: String
     city: String
-    state: InputState2
-    location: InputPosition2
+    state: InputStateOptional
+    location: InputPositionOptional
+  }
+
+  type OutputLocations {
+    totalcount: Int!
+    hasnextpage: Boolean!
+    locations: [Location!]!
   }
 `;
