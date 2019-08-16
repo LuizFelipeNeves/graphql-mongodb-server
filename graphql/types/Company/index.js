@@ -4,16 +4,23 @@ export default `
     name: String!
     logo: String!
     level: Int
-    freights: [Freight!]!
+  }
+
+  type Companys {
+    _id: ID!
+    name: String!
+    logo: String!
+    level: Int
   }
 
   input InputCompanys {
     level: Int
+    name: String
   }
 
   type Query {
     company(_id: ID, name: String): Company!
-    companys(page: Int, perpage: Int, filter: InputCompanys): [Company!]!
+    companys(page: Int, perpage: Int, filter: InputCompanys): [Companys!]!
   }
 
   type Mutation {
@@ -33,10 +40,3 @@ export default `
     level: Int
   }
 `;
-
-/*
-type InputCompanys {
-  level: Int
-  name: String 
-}
-*/

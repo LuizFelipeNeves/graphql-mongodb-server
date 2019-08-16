@@ -59,15 +59,6 @@ export default `
     updateFreight(_id: ID!, freight: UpdateFreightInput!): Freight!
     deleteFreight(_id: ID!): Freight!
   }
- 
-  type Subscription {
-    freight: FreightSubscriptionPayload!
-  }
-
-  type FreightSubscriptionPayload {
-    mutation: MutationType!
-    freight: Freight!
-  }
 
   input CreateFreightInput {
     url: String
@@ -117,6 +108,15 @@ export default `
     whatsapp: [String]
     sac: [String]
     company: ID
+  }
+
+  type Subscription {
+    freight: FreightSubscriptionPayload!
+  }
+
+  type FreightSubscriptionPayload {
+    mutation: MutationType!
+    freight: Freight!
   }
 
   enum MutationType {

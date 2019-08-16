@@ -1,19 +1,21 @@
 import Freight from "../../../server/models/Freight";
 import Company from "../../../server/models/Company";
 import Location from "../../../server/models/Location";
-import { transformFreight } from "../merge";
-import { buildMongoConditionsFromFilters, FILTER_CONDITION_TYPE } from '@entria/graphql-mongo-helpers';
+import {
+  buildMongoConditionsFromFilters,
+  FILTER_CONDITION_TYPE
+} from "@entria/graphql-mongo-helpers";
 
-const stringToRegexQuery = (val) => {
-  return { $regex: new RegExp(val) }
-}
+const stringToRegexQuery = val => {
+  return { $regex: new RegExp(val) };
+};
 
 const FreightFilterMapping = {
   site: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
   },
   status: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
   },
   km: {
     type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
@@ -50,102 +52,107 @@ const FreightFilterMapping = {
   vehicles: {
     type: FILTER_CONDITION_TYPE.CUSTOM_CONDITION,
     format: vehicles => {
-      if (!vehicles) return []
+      if (!vehicles) return [];
       return { vehicles: { $in: vehicles } };
-    },
+    }
   },
   bodies: {
     type: FILTER_CONDITION_TYPE.CUSTOM_CONDITION,
     format: bodies => {
-      if (!bodies) return []
+      if (!bodies) return [];
       return { bodies: { $in: bodies } };
-    },
+    }
   },
   origin: {
-      code: {
+    code: {
+      type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
+    },
+    city: {
+      type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
+    },
+    state: {
+      uf: {
         type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-      },
-      city: {
-        type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-      },
-      state: {
-        uf: {
-          type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-          key: 'state.name'
-        }
-      },
-      state: {
-        name: {
-          type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-          key: 'state.uf'
-        }
-      },
-  },
-  destination: {
-      code: {
-        type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-      },
-      city: {
-        type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-      },
-      state: {
-        uf: {
-          type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-          key: 'state.name'
-        }
-      },
-      state: {
-        name: {
-          type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-          key: 'state.uf'
-        }
-      },
-  },
-  company: {
-      type: FILTER_CONDITION_TYPE.AGGREGATE_PIPELINE,
-      pipeline: value => [
-        {
-          $lookup: {
-            localField: 'company',
-            from: 'company',
-            foreignField: '_id',
-            as: 'company',
-          },
-        },
-        {
-          $unwind: "$company"
-        },
-      ],
+        key: "state.name"
+      }
+    },
+    state: {
       name: {
         type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-        key: 'company.name'
-      },
-      level: {
-        type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-        key: 'company.level'
-      },
-      _id: {
-        type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-        key: 'company._id'
-      },
+        key: "state.uf"
+      }
+    }
   },
-}
+  destination: {
+    code: {
+      type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
+    },
+    city: {
+      type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
+    },
+    state: {
+      uf: {
+        type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+        key: "state.name"
+      }
+    },
+    state: {
+      name: {
+        type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+        key: "state.uf"
+      }
+    }
+  },
+  company: {
+    type: FILTER_CONDITION_TYPE.AGGREGATE_PIPELINE,
+    pipeline: value => [
+      {
+        $lookup: {
+          localField: "company",
+          from: "company",
+          foreignField: "_id",
+          as: "company"
+        }
+      },
+      {
+        $unwind: "$company"
+      }
+    ],
+    name: {
+      type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+      key: "company.name"
+    },
+    level: {
+      type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+      key: "company.level"
+    },
+    _id: {
+      type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+      key: "company._id"
+    }
+  }
+};
 
 export default {
   Query: {
     freight: async (parent, { _id }, context, info) => {
+      if (!_id) throw new Error("Insert id.");
       return await Freight.findOne({ _id })
         .populate("origin destination company")
         .exec();
     },
     freights: async (parent, args, context, info) => {
-      const { page, perpage } = args
+      const { page, perpage } = args;
 
-      const filterResult = buildMongoConditionsFromFilters(null, args.filter, FreightFilterMapping)
+      const filterResult = buildMongoConditionsFromFilters(
+        null,
+        args.filter,
+        FreightFilterMapping
+      );
       const { conditions, pipeline } = filterResult.conditions;
       //const finalPipeline = [{ $match: conditions }, ...pipeline];
 
-      console.log(conditions, pipeline)
+      console.log(conditions, pipeline);
 
       const res = await Freight.find(filterResult.conditions)
         .skip(perpage * (page - 1))
@@ -215,26 +222,22 @@ export default {
         company: freight.company
       });
 
+      const creator = await Company.findById(freight.company);
+      if (!creator) throw new Error("Company not found.");
+
+      const origin = await Location.findById(freight.origin);
+      if (!origin) throw new Error("Origin not found.");
+
+      const destination = await Location.findById(freight.destination);
+      if (!destination) throw new Error("Destination not found.");
+
       try {
-        const creator = await Company.findById(freight.company);
-        if (!creator) throw new Error("Company not found.");
-
-        const origin = await Location.findById(freight.origin);
-        if (!origin) throw new Error("Origin not found.");
-
-        const destination = await Location.findById(freight.destination);
-        if (!destination) throw new Error("Destination not found.");
-
         // const result = await newFreight.save(); // TODOFIX: DEVERIA RETORNAR O FRETE COM AS AGREGACOES
-        const result = await new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
           newFreight.save((err, res) => {
             err ? reject(err) : resolve(res);
           });
         });
-        const createdFreight = transformFreight(result);
-        creator.freights.push(newFreight);
-        await creator.save();
-        return createdFreight;
       } catch (error) {
         console.log(error);
         throw error;
@@ -253,17 +256,6 @@ export default {
     },
     deleteFreight: async (parent, { _id }, context, info) => {
       try {
-        // searching for creator of the freight and deleting it from the list
-        const freight = await Freight.findById(_id);
-        const creator = await Company.findById(freight.company);
-        if (!creator) {
-          throw new Error("Company not found.");
-        }
-        const index = creator.freights.indexOf(_id);
-        if (index > -1) {
-          creator.freights.splice(index, 1);
-        }
-        await creator.save();
         return new Promise((resolve, reject) => {
           Freight.findByIdAndDelete(_id).exec((err, res) => {
             err ? reject(err) : resolve(res);
@@ -280,11 +272,6 @@ export default {
       subscribe: (parent, args, { pubsub }) => {
         //return pubsub.asyncIterator(channel)
       }
-    }
-  },
-  Freight: {
-    company: async ({ company }, args, context, info) => {
-      return await Company.findById(company);
     }
   }
 };

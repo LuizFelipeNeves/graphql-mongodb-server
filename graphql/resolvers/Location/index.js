@@ -11,11 +11,9 @@ const stringToRegexQuery = val => {
 const LocationFilterMapping = {
   code: {
     type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
-    //format: stringToRegexQuery
   },
   city: {
     type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
-    //format: stringToRegexQuery
   },
   state: {
     uf: {
@@ -33,22 +31,19 @@ const LocationFilterMapping = {
 
 export default {
   Query: {
-    location: async (parent, args, context, info) => {
-      if (!args.filter) {
-        throw new Error("Insert a param.");
-      }
+    location: async (parent, { filter }, context, info) => {
+      if (!filter) throw new Error("Insert a param.");
       const filterResult = buildMongoConditionsFromFilters(
         null,
-        args.filter,
+        filter,
         LocationFilterMapping
       );
       return await Location.findOne(filterResult.conditions).exec();
     },
-    locations: async (parent, args, context, info) => {
-      const { page, perpage } = args;
+    locations: async (parent, { page, perpage, fiter }, context, info) => {
       const filterResult = buildMongoConditionsFromFilters(
         null,
-        args.fiter,
+        fiter,
         LocationFilterMapping
       );
       const locations = await Location.find(filterResult.conditions)
@@ -59,7 +54,6 @@ export default {
       const totalcount = await Location.countDocuments(
         filterResult.conditions
       ).exec();
-
       const hasnextpage = page < totalcount / perpage;
 
       return {
@@ -83,7 +77,6 @@ export default {
         state: location.state,
         location: location.location
       });
-
       return new Promise((resolve, reject) => {
         newLocation.save((err, res) => {
           err ? reject(err) : resolve(res);

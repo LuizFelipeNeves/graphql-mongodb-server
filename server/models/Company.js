@@ -22,13 +22,7 @@ const CompanySchema = new Schema(
     level: {
       type: Number,
       default: 0
-    },
-    freights: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Freight"
-      }
-    ]
+    }
   },
   { timestamps: { updatedAt: "updated_at", createdAt: "created_at" } }
 );

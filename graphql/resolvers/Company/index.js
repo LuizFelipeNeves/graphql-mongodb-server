@@ -1,5 +1,4 @@
 import Company from "../../../server/models/Company";
-import Freight from "../../../server/models/Freight";
 import {
   buildMongoConditionsFromFilters,
   FILTER_CONDITION_TYPE
@@ -13,42 +12,36 @@ const CompanyFilterMapping = {
   level: {
     type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
   },
-  /*
   name: {
-      type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
-      format: stringToRegexQuery
-  },
-  */
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    format: stringToRegexQuery
+  }
 };
 
 export default {
   Query: {
     company: async (parent, args, context, info) => {
-      if (!args) {
-        throw new Error("Insert an param.");
-      }
-
+      if (!args) throw new Error("Insert an param.");
       const company = await Company.findOne(args).exec();
-      if (!company) {
-        throw new Error("Company not found.");
-      }
+      if (!company) throw new Error("Company not found.");
       return company;
     },
-    companys: async (parent, args, context, info) => {
+    companys: async (parent, { page, perpage, filter }, context, info) => {
       const filterResult = buildMongoConditionsFromFilters(
         null,
-        args.filter,
+        filter,
         CompanyFilterMapping
       );
-
-      const companys = await Company.find(filterResult.conditions).populate().exec();
+      const companys = await Company.find(filterResult.conditions)
+        .skip(perpage * (page - 1))
+        .limit(perpage)
+        .exec();
 
       return companys.map(u => ({
         _id: u._id.toString(),
         name: u.name,
         logo: u.logo,
-        level: u.level,
-        freights: u.freights
+        level: u.level
       }));
     }
   },
@@ -57,10 +50,8 @@ export default {
       const newCompany = await new Company({
         name: company.name,
         logo: company.logo,
-        level: company.level,
-        freights: company.freights
+        level: company.level
       });
-
       return new Promise((resolve, reject) => {
         newCompany.save((err, res) => {
           err ? reject(err) : resolve(res);
@@ -79,16 +70,12 @@ export default {
       });
     },
     deleteCompany: async (parent, { _id }, context, info) => {
+      // TODO: FIND company, change status and update all freight
       return new Promise((resolve, reject) => {
         Company.findByIdAndDelete(_id).exec((err, res) => {
           err ? reject(err) : resolve(res);
         });
       });
-    }
-  },
-  Company: {
-    freights: async ({ _id }, args, context, info) => {
-      return await Freight.find({ company: _id });
     }
   }
 };
