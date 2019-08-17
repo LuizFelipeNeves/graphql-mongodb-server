@@ -40,8 +40,7 @@
     "babel-loader": "^8.0.6",
     "jest": "^24.8.0",
     "jest-cli": "^24.8.0",
-    "jest-dom": "^4.0.0",
-    "react-testing-library": "^8.0.1"
+    "jest-dom": "^4.0.0"
   },
   "dependencies": {
     "@entria/graphql-mongo-helpers": "0.0.1",
