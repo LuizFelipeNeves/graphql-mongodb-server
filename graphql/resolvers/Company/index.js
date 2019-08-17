@@ -65,26 +65,24 @@ export default {
       });
     },
     updateCompany: async (parent, { _id, company }, context, info) => {
-      return new Promise((resolve, reject) => {
-        Company.findByIdAndUpdate(
-          _id,
-          { $set: { ...company } },
-          { new: true }
-        ).exec((err, res) => {
-          err ? reject(err) : resolve(res);
-        });
-      });
+      const data = await Company.updateOne(
+        { _id },
+        { ...company },
+        { new: true }
+      ).exec();
+      return data.ok ? true : false;
     },
     deleteCompany: async (parent, { _id }, context, info) => {
       const company = await Company.findById(_id).exec();
       if (!company) throw new Error("Company not found.");
       if (company.status === 1) throw new Error("Company deleted.");
       await Freight.updateMany({ company: _id }, { $set: { status: false } });
-      return new Promise((resolve, reject) =>
-        Company.findByIdAndUpdate(_id, { status: 1 }).exec((err, res) => {
-          err ? reject(err) : resolve(res);
-        })
-      );
+      const update = await Company.updateOne(
+        { _id },
+        { status: 1 },
+        { new: true }
+      ).exec();
+      return update.ok ? true : false;
     }
   }
 };

@@ -4,10 +4,6 @@ import {
   FILTER_CONDITION_TYPE
 } from "@entria/graphql-mongo-helpers";
 
-const stringToRegexQuery = val => {
-  return { $regex: new RegExp(val) };
-};
-
 const LocationFilterMapping = {
   code: {
     type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
@@ -67,39 +63,6 @@ export default {
           location: u.location
         }))
       };
-    }
-  },
-  Mutation: {
-    createLocation: async (parent, { location }, context, info) => {
-      const newLocation = await new Location({
-        code: location.code,
-        city: location.city,
-        state: location.state,
-        location: location.location
-      });
-      return new Promise((resolve, reject) => {
-        newLocation.save((err, res) => {
-          err ? reject(err) : resolve(res);
-        });
-      });
-    },
-    updateLocation: async (parent, { _id, location }, context, info) => {
-      return new Promise((resolve, reject) => {
-        Location.findByIdAndUpdate(
-          _id,
-          { $set: { ...location } },
-          { new: true }
-        ).exec((err, res) => {
-          err ? reject(err) : resolve(res);
-        });
-      });
-    },
-    deleteLocation: async (parent, { _id }, context, info) => {
-      return new Promise((resolve, reject) => {
-        Location.findByIdAndDelete(_id).exec((err, res) => {
-          err ? reject(err) : resolve(res);
-        });
-      });
     }
   }
 };

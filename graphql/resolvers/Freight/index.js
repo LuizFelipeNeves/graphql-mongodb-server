@@ -248,27 +248,20 @@ export default {
       }
     },
     updateFreight: async (parent, { _id, freight }, context, info) => {
-      return new Promise((resolve, reject) => {
-        Freight.findByIdAndUpdate(
-          _id,
-          { $set: { ...freight } },
-          { new: true }
-        ).exec((err, res) => {
-          err ? reject(err) : resolve(res);
-        });
-      });
+      const update = await Freight.updateOne(
+        { _id },
+        { $set: { ...freight } },
+        { new: true }
+      ).exec();
+      return update.ok ? true : false;
     },
-    deleteFreight: async (parent, { _id }, context, info) => {
-      try {
-        return new Promise((resolve, reject) => {
-          Freight.findByIdAndDelete(_id).exec((err, res) => {
-            err ? reject(err) : resolve(res);
-          });
-        });
-      } catch (error) {
-        console.log(error);
-        throw error;
-      }
+    deleteFreight: async (parent, args, context, info) => {
+      const update = await Freight.updateOne(
+        args,
+        { status: false },
+        { new: true }
+      ).exec();
+      return update.ok ? true : false;
     }
   },
   Subscription: {

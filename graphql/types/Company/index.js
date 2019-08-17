@@ -28,8 +28,8 @@ export default `
 
   type Mutation {
     createCompany(company: CreateCompanyInput!): Company!
-    updateCompany(_id: String!, company: UpdateCompanyInput!): Company!
-    deleteCompany(_id: String!): Company!
+    updateCompany(_id: String!, company: UpdateCompanyInput!): Boolean!
+    deleteCompany(_id: String!): Boolean!
   }
   input CreateCompanyInput {
     name: String!

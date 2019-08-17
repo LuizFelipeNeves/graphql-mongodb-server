@@ -32,16 +32,6 @@ export default `
     freights: [Freight!]!
   }
 
-  input InputFreights {
-    status: Boolean
-    origin: UpdateLocationInput
-    destination: UpdateLocationInput
-    company: InputFreightCompany
-    
-    vehicles: [String]
-    bodies: [String]
-  }
-
   input InputFreightCompany {
     _id: ID
     name: String
@@ -55,10 +45,20 @@ export default `
     freights(page: Int, perpage: Int, filter: InputFreights): OutputFreight!
   }
 
+  input InputFreights {
+    status: Boolean
+    origin: InputLocation
+    destination: InputLocation
+    company: InputFreightCompany
+    
+    vehicles: [String]
+    bodies: [String]
+  }
+
   type Mutation {
     createFreight(freight: CreateFreightInput!): Freight!
-    updateFreight(_id: ID!, freight: UpdateFreightInput!): Freight!
-    deleteFreight(_id: ID!): Freight!
+    updateFreight(_id: ID!, freight: UpdateFreightInput!): Boolean!
+    deleteFreight(_id: ID!): Boolean!
   }
 
   input CreateFreightInput {

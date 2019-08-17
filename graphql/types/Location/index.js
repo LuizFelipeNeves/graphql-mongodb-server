@@ -16,62 +16,26 @@ export default `
     coordinates: [Float]!
   }
 
+  type Query {
+    location(filter: InputLocation): Location!
+    locations(page: Int, perpage: Int, filter: InputLocations): OutputLocations
+  }
+
+  input InputLocation {
+    _id: ID
+    code: String
+    city: String
+    state: InputStateOptional
+  }
+
   input InputStateOptional {
     uf: String
     name: String
   }
 
-  input InputStateRequired {
-    uf: String!
-    name: String!
-  }
-
-  input InputQueryLocation {
-    _id: ID
-    code: String
-    city: String
-    state: InputStateOptional
-  } 
-
-  input InputQueryLocations {
+  input InputLocations {
     city: String,
     state: InputStateOptional
-  }
-
-  type Query {
-    location(filter: InputQueryLocation): Location!
-    locations(page: Int, perpage: Int, filter: InputQueryLocations): OutputLocations
-  }
-
-  type Mutation {
-    createLocation(location: CreateLocationInput): Location!
-    updateLocation(_id: ID!, location: UpdateLocationInput): Location!
-    deleteLocation(_id: ID!): Location!
-  }
-
-  input InputPositionRequired {
-    type: String!
-    coordinates: [Float]!
-  }
-
-  input InputPositionOptional {
-    type: String
-    coordinates: [Float]!
-  }
-
-  input CreateLocationInput {
-    code: String!
-    city: String!
-    state: InputStateRequired!
-    location: InputPositionRequired!
-  }
-
-  input UpdateLocationInput {
-    _id: ID
-    code: String
-    city: String
-    state: InputStateOptional
-    location: InputPositionOptional
   }
 
   type OutputLocations {
