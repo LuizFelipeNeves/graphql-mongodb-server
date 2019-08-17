@@ -22,6 +22,10 @@ const CompanySchema = new Schema(
     level: {
       type: Number,
       default: 0
+    },
+    status: {
+      type: Number,
+      default: 0
     }
   },
   { timestamps: { updatedAt: "updated_at", createdAt: "created_at" } }

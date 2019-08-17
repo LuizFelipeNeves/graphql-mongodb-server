@@ -4,6 +4,7 @@ export default `
     name: String!
     logo: String!
     level: Int
+    status: Int
   }
 
   type Companys {
@@ -11,11 +12,13 @@ export default `
     name: String!
     logo: String!
     level: Int
+    status: Int
   }
 
   input InputCompanys {
     level: Int
     name: String
+    status: Int
   }
 
   type Query {
@@ -32,11 +35,13 @@ export default `
     name: String!
     logo: String!
     level: Int
+    status: Int
   }
   
   input UpdateCompanyInput {
     name: String
     logo: String
     level: Int
+    status: Int
   }
 `;

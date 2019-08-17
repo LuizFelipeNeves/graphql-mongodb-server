@@ -47,6 +47,7 @@ export default `
     name: String
     logo: String
     level: Int
+    status: Int
   }
 
   type Query {

@@ -2,12 +2,14 @@ import User from "../../../server/models/User";
 
 export default {
   Query: {
-    user: async (parent, { _id }, context, info) => {
-      return await User.findOne({ _id }).exec();
+    user: async (parent, args, context, info) => {
+      if (!args) throw new Error("Insert an param.");
+      const user = await User.findOne(args).exec();
+      if (!user) throw new Error("User not found.");
+      return user;
     },
     users: async (parent, args, context, info) => {
       const users = await User.find({}).exec();
-
       return users.map(u => ({
         _id: u._id.toString(),
         first_name: u.first_name,

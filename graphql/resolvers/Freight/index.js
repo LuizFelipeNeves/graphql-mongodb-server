@@ -126,6 +126,10 @@ const FreightFilterMapping = {
       type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
       key: "company.level"
     },
+    status: {
+      type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+      key: "company.status"
+    },
     _id: {
       type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
       key: "company._id"

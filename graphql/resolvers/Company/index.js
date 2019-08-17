@@ -3,6 +3,7 @@ import {
   buildMongoConditionsFromFilters,
   FILTER_CONDITION_TYPE
 } from "@entria/graphql-mongo-helpers";
+import Freight from "../../../server/models/Freight";
 
 const stringToRegexQuery = val => {
   return { $regex: new RegExp(val) };
@@ -10,6 +11,9 @@ const stringToRegexQuery = val => {
 
 const CompanyFilterMapping = {
   level: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
+  },
+  status: {
     type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
   },
   name: {
@@ -41,7 +45,8 @@ export default {
         _id: u._id.toString(),
         name: u.name,
         logo: u.logo,
-        level: u.level
+        level: u.level,
+        status: u.status
       }));
     }
   },
@@ -50,7 +55,8 @@ export default {
       const newCompany = await new Company({
         name: company.name,
         logo: company.logo,
-        level: company.level
+        level: company.level,
+        status: company.status
       });
       return new Promise((resolve, reject) => {
         newCompany.save((err, res) => {
@@ -70,12 +76,15 @@ export default {
       });
     },
     deleteCompany: async (parent, { _id }, context, info) => {
-      // TODO: FIND company, change status and update all freight
-      return new Promise((resolve, reject) => {
-        Company.findByIdAndDelete(_id).exec((err, res) => {
+      const company = await Company.findById(_id).exec();
+      if (!company) throw new Error("Company not found.");
+      if (company.status === 1) throw new Error("Company deleted.");
+      await Freight.updateMany({ company: _id }, { $set: { status: false } });
+      return new Promise((resolve, reject) =>
+        Company.findByIdAndUpdate(_id, { status: 1 }).exec((err, res) => {
           err ? reject(err) : resolve(res);
-        });
-      });
+        })
+      );
     }
   }
 };
