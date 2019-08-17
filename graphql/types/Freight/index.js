@@ -58,7 +58,7 @@ export default `
   type Mutation {
     createFreight(freight: CreateFreightInput!): Freight!
     updateFreight(_id: ID!, freight: UpdateFreightInput!): Boolean!
-    deleteFreight(_id: ID!): Boolean!
+    deleteFreight(_id: ID, url: String): Boolean!
   }
 
   input CreateFreightInput {

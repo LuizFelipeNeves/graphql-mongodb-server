@@ -256,6 +256,7 @@ export default {
       return update.ok ? true : false;
     },
     deleteFreight: async (parent, args, context, info) => {
+      if (!_id && !url) throw new Error("Insert an param.");
       const update = await Freight.updateOne(
         args,
         { status: false },

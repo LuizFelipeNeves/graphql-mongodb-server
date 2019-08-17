@@ -3,7 +3,7 @@ import User from "../../../server/models/User";
 export default {
   Query: {
     user: async (parent, args, context, info) => {
-      if (!args) throw new Error("Insert an param.");
+      if (!_id && !email) throw new Error("Insert an param.");
       const user = await User.findOne(args).exec();
       if (!user) throw new Error("User not found.");
       return user;

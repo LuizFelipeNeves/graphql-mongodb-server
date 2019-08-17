@@ -25,7 +25,7 @@ const CompanyFilterMapping = {
 export default {
   Query: {
     company: async (parent, args, context, info) => {
-      if (!args) throw new Error("Insert an param.");
+      if (!_id && !name) throw new Error("Insert an param.");
       const company = await Company.findOne(args).exec();
       if (!company) throw new Error("Company not found.");
       return company;
