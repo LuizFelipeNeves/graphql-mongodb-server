@@ -17,7 +17,8 @@ export default {
         email: u.email,
         password: u.password,
         telephones: u.telephones,
-        role: u.role
+        role: u.role,
+        status: u.status
       }));
     }
   },
@@ -29,7 +30,8 @@ export default {
         email: user.email,
         password: user.password,
         telephones: user.telephones,
-        role: user.role
+        role: user.role,
+        status: user.status
       });
 
       return new Promise((resolve, reject) => {
@@ -39,20 +41,18 @@ export default {
       });
     },
     updateUser: async (parent, { _id, user }, context, info) => {
-      return new Promise((resolve, reject) => {
-        User.findByIdAndUpdate(_id, { $set: { ...user } }, { new: true }).exec(
-          (err, res) => {
-            err ? reject(err) : resolve(res);
-          }
-        );
-      });
+      const update = await Freight.updateOne({ _id }, user, {
+        new: true
+      }).exec();
+      return update.ok ? true : false;
     },
     deleteUser: async (parent, { _id }, context, info) => {
-      return new Promise((resolve, reject) => {
-        User.findByIdAndDelete(_id).exec((err, res) => {
-          err ? reject(err) : resolve(res);
-        });
-      });
+      const update = await Freight.updateOne(
+        { _id },
+        { status: 1 },
+        { new: true }
+      ).exec();
+      return update.ok ? true : false;
     }
   }
 };

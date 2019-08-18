@@ -34,6 +34,10 @@ const UserSchema = new Schema(
     role: {
       type: Number,
       default: 0
+    },
+    status: {
+      type: Number,
+      default: 0
     }
   },
   { timestamps: { updatedAt: "updated_at", createdAt: "created_at" } }

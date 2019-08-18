@@ -7,6 +7,7 @@ export default `
     password: String!
     telephones: [Int]!,
     role: Int
+    status: Int
   }
 
   type Query {
@@ -16,8 +17,8 @@ export default `
 
   type Mutation {
     createUser(user: CreateUserInput): User!
-    updateUser(_id: String!, user: UpdateUserInput!): User!
-    deleteUser(_id: String!): User!
+    updateUser(_id: String!, user: UpdateUserInput!): Boolean!
+    deleteUser(_id: String!): Boolean!
   }
 
   input CreateUserInput {
@@ -27,8 +28,9 @@ export default `
     password: String!
     telephones: [Int]!,
     role: Int
+    status: Int
   }
-  
+
   input UpdateUserInput {
     first_name: String
     last_name: String
@@ -36,5 +38,6 @@ export default `
     password: String
     telephones: [Int],
     role: Int
-  } 
+    status: Int
+  }
 `;
