@@ -6,7 +6,6 @@ export default `
     state: State!
     location: Position!
   }
-
   type State {
     uf: String!
     name: String!

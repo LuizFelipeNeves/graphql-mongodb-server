@@ -52,17 +52,7 @@ export default {
   },
   Mutation: {
     createCompany: async (parent, { company }, context, info) => {
-      const newCompany = await new Company({
-        name: company.name,
-        logo: company.logo,
-        level: company.level,
-        status: company.status
-      });
-      return new Promise((resolve, reject) => {
-        newCompany.save((err, res) => {
-          err ? reject(err) : resolve(res);
-        });
-      });
+      return Company.create(company);
     },
     updateCompany: async (parent, { _id, company }, context, info) => {
       const data = await Company.updateOne(

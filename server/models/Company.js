@@ -15,7 +15,7 @@ const CompanySchema = new Schema(
       required: true
     },
     logo: {
-      type: String, // Buffer,
+      type: String, // TODOFIX: Buffer to use base64
       required: true
     },
     level: {

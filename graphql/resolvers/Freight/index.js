@@ -10,6 +10,20 @@ const stringToRegexQuery = val => {
   return { $regex: new RegExp(val) };
 };
 
+const StateOriginFilterMapping = {
+  city: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
+  },
+  stateuf: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    key: "destination.state.uf"
+  },
+  statename: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+      key: "destination.state.name"
+  }
+};
+
 const FreightFilterMapping = {
   site: {
     type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
@@ -139,6 +153,42 @@ const FreightFilterMapping = {
 
 export default {
   Query: {
+    stateOrigin: async (parent, args, context, info) => {
+      const { conditions } = buildMongoConditionsFromFilters(
+        null,
+        args.destination,
+        StateOriginFilterMapping
+      );
+      const states = await Freight.aggregate([{
+        $lookup: {
+          from: 'locations',
+          localField: 'origin',
+          foreignField: '_id',
+          as: 'origin',
+        },
+      },
+      {
+        $lookup: {
+          from: 'locations',
+          localField: 'destination',
+          foreignField: '_id',
+          as: 'destination',
+        },
+      },
+      {  
+          $unwind:'$destination'
+      }, 
+      {
+          $unwind:'$origin',
+      },
+      { $match: conditions },
+      {
+          $group: {
+              _id: "$origin.state.uf",
+          }
+      }]).exec();
+      return Array.from(Object.keys(states), p => states[p]._id); 
+    },
     freight: async (parent, { _id }, context, info) => {
       if (!_id) throw new Error("Insert id.");
       return await Freight.findOne({ _id })
@@ -151,22 +201,23 @@ export default {
       const filterResult = buildMongoConditionsFromFilters(
         null,
         args.filter,
-        FreightFilterMapping
+        FreightFilterMapping // TODOFIX: Agregações
       );
+
       const { conditions, pipeline } = filterResult.conditions;
-      //const finalPipeline = [{ $match: conditions }, ...pipeline];
+      const finalPipeline = [{ $match: conditions }, ...pipeline];
 
       console.log(conditions, pipeline);
 
       const res = await Freight.find(filterResult.conditions)
         .skip(perpage * (page - 1))
         .limit(perpage)
-        .populate("origin destination") // company
+        .populate("origin destination company")
         .exec();
 
-      const totalcount = await Freight.countDocuments(filterResult.conditions)
-        .populate("origin destination") // company
-        .exec();
+      const totalcount = await Freight.countDocuments(
+        filterResult.conditions
+      ).exec();
 
       const hasnextpage = page < totalcount / perpage;
 
@@ -202,30 +253,6 @@ export default {
   },
   Mutation: {
     createFreight: async (parent, { freight }, context, info) => {
-      const newFreight = await Freight.create({
-        url: freight.url,
-        site: freight.site,
-        origin: freight.origin,
-        destination: freight.destination,
-        status: freight.status,
-        km: freight.km,
-        price: freight.price,
-        weight: freight.weight,
-        cargo: freight.cargo,
-        especie: freight.especie, // TODOFIX: Translate
-        complement: freight.complement,
-        tracking: freight.tracking,
-        note: freight.note,
-        vehicles: freight.vehicles,
-        bodies: freight.bodies,
-        nextel: freight.nextel,
-        cellphone: freight.cellphone,
-        telephone: freight.telephone,
-        whatsapp: freight.whatsapp,
-        sac: freight.sac, // TODOFIX: Translate
-        company: freight.company
-      });
-
       const creator = await Company.findById(freight.company);
       if (!creator) throw new Error("Company not found.");
 
@@ -234,18 +261,7 @@ export default {
 
       const destination = await Location.findById(freight.destination);
       if (!destination) throw new Error("Destination not found.");
-
-      try {
-        // const result = await newFreight.save(); // TODOFIX: DEVERIA RETORNAR O FRETE COM AS AGREGACOES
-        return new Promise((resolve, reject) => {
-          newFreight.save((err, res) => {
-            err ? reject(err) : resolve(res);
-          });
-        });
-      } catch (error) {
-        console.log(error);
-        throw error;
-      }
+      return await Freight.create(freight);
     },
     updateFreight: async (parent, { _id, freight }, context, info) => {
       const update = await Freight.updateOne(
@@ -272,4 +288,18 @@ export default {
       }
     }
   }
+  /*
+  // Pode ser usado para inserir campos a mais.. com querys prontas
+  ou fazer relacionamentos
+
+  Freight: {
+    origin: async ({ origin }, args, context, info) => { // parent
+      console.log(origin);
+      return await Location.findOne({ _id: origin });
+    },
+    destination: async ({ destination }, args, context, info) => {
+      console.log(destination);
+      return await Location.findOne({ _id: destination });
+    }
+  }*/
 };
