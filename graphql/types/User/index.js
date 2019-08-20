@@ -16,7 +16,7 @@ export default `
   }
 
   type Mutation {
-    createUser(user: CreateUserInput): User!
+    createUser(user: CreateUserInput!): User!
     updateUser(_id: String!, user: UpdateUserInput!): Boolean!
     deleteUser(_id: String!): Boolean!
   }
