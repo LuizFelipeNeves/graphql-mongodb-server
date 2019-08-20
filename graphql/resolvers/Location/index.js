@@ -11,17 +11,13 @@ const LocationFilterMapping = {
   city: {
     type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
   },
-  state: {
-    uf: {
-      type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-      key: "state.uf"
-    }
+  stateuf: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    key: "state.uf"
   },
-  state: {
-    name: {
-      type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-      key: "state.name"
-    }
+  statename: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    key: "state.name"
   }
 };
 

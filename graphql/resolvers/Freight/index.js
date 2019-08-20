@@ -10,9 +10,10 @@ const stringToRegexQuery = val => {
   return { $regex: new RegExp(val) };
 };
 
-const StateOriginFilterMapping = {
+const OriginFilterMapping = {
   city: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    key: "destination.city"
   },
   stateuf: {
     type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
@@ -20,13 +21,18 @@ const StateOriginFilterMapping = {
   },
   statename: {
     type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-      key: "destination.state.name"
+    key: "destination.state.name"
+  },
+  statebase: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    key: "origin.state.uf"
   }
 };
 
-const StateDestinationFilterMapping = {
+const DestinationFilterMapping = {
   city: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    key: "origin.city"
   },
   stateuf: {
     type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
@@ -34,8 +40,38 @@ const StateDestinationFilterMapping = {
   },
   statename: {
     type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-      key: "origin.state.name"
+    key: "origin.state.name"
+  },
+  statebase: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    key: "destination.state.uf"
   }
+};
+
+const freightaggregate = async (groupby, conditions) => {
+  const data = await Freight.aggregate([
+    {
+      $lookup: {
+        from: "locations",
+        localField: "origin",
+        foreignField: "_id",
+        as: "origin"
+      }
+    },
+    {
+      $lookup: {
+        from: "locations",
+        localField: "destination",
+        foreignField: "_id",
+        as: "destination"
+      }
+    },
+    { $unwind: "$destination" },
+    { $unwind: "$origin" },
+    { $match: conditions },
+    { $group: { _id: `$${groupby}` } }
+  ]).exec();
+  return Array.from(Object.keys(data), p => data[p]._id);
 };
 
 const FreightFilterMapping = {
@@ -170,74 +206,34 @@ export default {
     stateOrigin: async (parent, args, context, info) => {
       const { conditions } = buildMongoConditionsFromFilters(
         null,
-        args.destination,
-        StateOriginFilterMapping
+        args.filter,
+        OriginFilterMapping
       );
-      const states = await Freight.aggregate([{
-        $lookup: {
-          from: 'locations',
-          localField: 'origin',
-          foreignField: '_id',
-          as: 'origin',
-        },
-      },
-      {
-        $lookup: {
-          from: 'locations',
-          localField: 'destination',
-          foreignField: '_id',
-          as: 'destination',
-        },
-      },
-      {  
-          $unwind:'$destination'
-      }, 
-      {
-          $unwind:'$origin',
-      },
-      { $match: conditions },
-      {
-          $group: {
-              _id: "$origin.state.uf",
-          }
-      }]).exec();
-      return Array.from(Object.keys(states), p => states[p]._id); 
+      return await freightaggregate("origin.state.uf", conditions);
     },
     stateDestination: async (parent, args, context, info) => {
       const { conditions } = buildMongoConditionsFromFilters(
         null,
-        args.origin,
-        StateDestinationFilterMapping
+        args.filter,
+        DestinationFilterMapping
       );
-      const states = await Freight.aggregate([{
-        $lookup: {
-          from: 'locations',
-          localField: 'origin',
-          foreignField: '_id',
-          as: 'origin',
-        },
-      },
-      {
-        $lookup: {
-          from: 'locations',
-          localField: 'destination',
-          foreignField: '_id',
-          as: 'destination',
-        },
-      },
-      {  
-          $unwind:'$destination'
-      }, 
-      {
-          $unwind:'$origin',
-      },
-      { $match: conditions },
-      {
-          $group: {
-              _id: "$destination.state.uf",
-          }
-      }]).exec();
-      return Array.from(Object.keys(states), p => states[p]._id);
+      return await freightaggregate("destination.state.uf", conditions);
+    },
+    cityOrigin: async (parent, args, context, info) => {
+      const { conditions } = buildMongoConditionsFromFilters(
+        null,
+        args.filter,
+        OriginFilterMapping
+      );
+      return await freightaggregate("origin.city", conditions);
+    },
+    cityDestination: async (parent, args, context, info) => {
+      const { conditions } = buildMongoConditionsFromFilters(
+        null,
+        args.filter,
+        DestinationFilterMapping
+      );
+      return await freightaggregate("destination.city", conditions);
     },
     freight: async (parent, { _id }, context, info) => {
       if (!_id) throw new Error("Insert id.");

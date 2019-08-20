@@ -41,16 +41,27 @@ export default `
   }
 
   type Query {
-    stateOrigin(destination: InputStateOrigin): [String!]!
-    stateDestination(origin: InputStateOrigin): [String!]!
+    stateOrigin(filter: InputQueryState): [String!]!
+    stateDestination(filter: InputQueryState): [String!]!
+
+    cityOrigin(filter: InputQuerStateRequired): [String!]!
+    cityDestination(filter: InputQuerStateRequired): [String!]!
+    
     freight(_id: ID!): Freight!
     freights(page: Int, perpage: Int, filter: InputFreights): OutputFreight!
   }
 
-  input InputStateOrigin {
+  input InputQueryState {
     city: String
     stateuf: String
     statename: String
+  }
+
+  input InputQuerStateRequired {
+    city: String
+    stateuf: String
+    statename: String
+    statebase: String!
   }
 
   input InputFreights {
