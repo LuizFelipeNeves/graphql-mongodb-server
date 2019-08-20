@@ -42,6 +42,7 @@ export default `
 
   type Query {
     stateOrigin(destination: InputStateOrigin): [String!]!
+    stateDestination(origin: InputStateOrigin): [String!]!
     freight(_id: ID!): Freight!
     freights(page: Int, perpage: Int, filter: InputFreights): OutputFreight!
   }

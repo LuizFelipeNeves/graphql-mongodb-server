@@ -24,6 +24,20 @@ const StateOriginFilterMapping = {
   }
 };
 
+const StateDestinationFilterMapping = {
+  city: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
+  },
+  stateuf: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    key: "origin.state.uf"
+  },
+  statename: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+      key: "origin.state.name"
+  }
+};
+
 const FreightFilterMapping = {
   site: {
     type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
@@ -188,6 +202,42 @@ export default {
           }
       }]).exec();
       return Array.from(Object.keys(states), p => states[p]._id); 
+    },
+    stateDestination: async (parent, args, context, info) => {
+      const { conditions } = buildMongoConditionsFromFilters(
+        null,
+        args.origin,
+        StateDestinationFilterMapping
+      );
+      const states = await Freight.aggregate([{
+        $lookup: {
+          from: 'locations',
+          localField: 'origin',
+          foreignField: '_id',
+          as: 'origin',
+        },
+      },
+      {
+        $lookup: {
+          from: 'locations',
+          localField: 'destination',
+          foreignField: '_id',
+          as: 'destination',
+        },
+      },
+      {  
+          $unwind:'$destination'
+      }, 
+      {
+          $unwind:'$origin',
+      },
+      { $match: conditions },
+      {
+          $group: {
+              _id: "$destination.state.uf",
+          }
+      }]).exec();
+      return Array.from(Object.keys(states), p => states[p]._id);
     },
     freight: async (parent, { _id }, context, info) => {
       if (!_id) throw new Error("Insert id.");
