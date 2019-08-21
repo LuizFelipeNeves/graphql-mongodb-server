@@ -32,14 +32,6 @@ export default `
     freights: [Freight!]!
   }
 
-  input InputFreightCompany {
-    _id: ID
-    name: String
-    logo: String
-    level: Int
-    status: Int
-  }
-
   type Query {
     stateOrigin(filter: InputQueryState): [String!]!
     stateDestination(filter: InputQueryState): [String!]!
@@ -66,12 +58,25 @@ export default `
 
   input InputFreights {
     status: Boolean
-    origin: InputLocation
-    destination: InputLocation
-    company: InputFreightCompany
-    
     vehicles: [String]
     bodies: [String]
+
+    origin_id: ID
+    origincode: String
+    origincity: String
+    originstatename: String
+    originstateuf: String
+
+    destination_id: ID
+    destinationcode: String
+    destinationcity: String
+    destinationstatename: String
+    destinationstateuf: String
+
+    company_id: ID
+    companyname: String
+    companylevel: Int
+    companystatus: Int
   }
 
   type Mutation {

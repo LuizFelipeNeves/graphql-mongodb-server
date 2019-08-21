@@ -6,9 +6,7 @@ import {
   FILTER_CONDITION_TYPE
 } from "@entria/graphql-mongo-helpers";
 
-const stringToRegexQuery = val => {
-  return { $regex: new RegExp(val) };
-};
+const stringToRegexQuery = val => ({ $regex: new RegExp(val) });
 
 const OriginFilterMapping = {
   city: {
@@ -47,6 +45,8 @@ const DestinationFilterMapping = {
     key: "destination.state.uf"
   }
 };
+
+const querysfreight = [];
 
 const freightaggregate = async (groupby, conditions) => {
   const data = await Freight.aggregate([
@@ -127,77 +127,53 @@ const FreightFilterMapping = {
       return { bodies: { $in: bodies } };
     }
   },
-  origin: {
-    code: {
-      type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
-    },
-    city: {
-      type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
-    },
-    state: {
-      uf: {
-        type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-        key: "state.name"
-      }
-    },
-    state: {
-      name: {
-        type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-        key: "state.uf"
-      }
-    }
+  origincode: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    key: "origin.code"
   },
-  destination: {
-    code: {
-      type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
-    },
-    city: {
-      type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
-    },
-    state: {
-      uf: {
-        type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-        key: "state.name"
-      }
-    },
-    state: {
-      name: {
-        type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-        key: "state.uf"
-      }
-    }
+  origincity: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    key: "origin.city"
   },
-  company: {
-    type: FILTER_CONDITION_TYPE.AGGREGATE_PIPELINE,
-    pipeline: value => [
-      {
-        $lookup: {
-          localField: "company",
-          from: "company",
-          foreignField: "_id",
-          as: "company"
-        }
-      },
-      {
-        $unwind: "$company"
-      }
-    ],
-    name: {
-      type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-      key: "company.name"
-    },
-    level: {
-      type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-      key: "company.level"
-    },
-    status: {
-      type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-      key: "company.status"
-    },
-    _id: {
-      type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-      key: "company._id"
-    }
+  originstateuf: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    key: "origin.state.uf"
+  },
+  originstatename: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    key: "origin.state.name"
+  },
+  destinationcode: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    key: "destination.code"
+  },
+  destinationcity: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    key: "destination.city"
+  },
+  destinationstateuf: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    key: "destination.state.uf"
+  },
+  destinationstatename: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    key: "destination.state.name"
+  },
+  companyname: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    key: "company.name"
+  },
+  companylevel: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    key: "company.level"
+  },
+  companystatus: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    key: "company.status"
+  },
+  company_id: {
+    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
+    key: "company._id"
   }
 };
 
@@ -242,28 +218,48 @@ export default {
         .exec();
     },
     freights: async (parent, args, context, info) => {
-      const { page, perpage } = args;
+      const { page, perpage, filter } = args;
 
-      const filterResult = buildMongoConditionsFromFilters(
+      const { conditions } = buildMongoConditionsFromFilters(
         null,
-        args.filter,
-        FreightFilterMapping // TODOFIX: Agregações
+        filter,
+        FreightFilterMapping
       );
 
-      const { conditions, pipeline } = filterResult.conditions;
-      const finalPipeline = [{ $match: conditions }, ...pipeline];
+      const res = await Freight.aggregate([
+        {
+          $lookup: {
+            from: "locations",
+            localField: "origin",
+            foreignField: "_id",
+            as: "origin"
+          }
+        },
+        {
+          $lookup: {
+            from: "locations",
+            localField: "destination",
+            foreignField: "_id",
+            as: "destination"
+          }
+        },
+        {
+          $lookup: {
+            from: "companies",
+            localField: "company",
+            foreignField: "_id",
+            as: "company"
+          }
+        },
+        { $unwind: "$destination" },
+        { $unwind: "$origin" },
+        { $unwind: "$company" },
+        { $match: conditions }
+        // skip
+        // limit
+      ]).exec();
 
-      console.log(conditions, pipeline);
-
-      const res = await Freight.find(filterResult.conditions)
-        .skip(perpage * (page - 1))
-        .limit(perpage)
-        .populate("origin destination company")
-        .exec();
-
-      const totalcount = await Freight.countDocuments(
-        filterResult.conditions
-      ).exec();
+      const totalcount = await Freight.countDocuments(conditions).exec();
 
       const hasnextpage = page < totalcount / perpage;
 
