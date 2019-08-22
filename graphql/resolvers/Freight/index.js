@@ -1,52 +1,18 @@
 import Freight from "../../../server/models/Freight";
 import Company from "../../../server/models/Company";
 import Location from "../../../server/models/Location";
-import {
-  buildMongoConditionsFromFilters,
-  FILTER_CONDITION_TYPE
-} from "@entria/graphql-mongo-helpers";
 
 const stringToRegexQuery = val => ({ $regex: new RegExp(val) });
 
-const OriginFilterMapping = {
-  city: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-    key: "destination.city"
-  },
-  stateuf: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-    key: "destination.state.uf"
-  },
-  statename: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-    key: "destination.state.name"
-  },
-  statebase: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-    key: "origin.state.uf"
+const convertJsonToDot = (obj, parent = [], keyValue = {}) => {
+  for (let key in obj) {
+    let keyPath = [...parent, key];
+    if (obj[key] !== null && typeof obj[key] === "object") {
+      Object.assign(keyValue, convertJsonToDot(obj[key], keyPath, keyValue));
+    } else keyValue[keyPath.join(".")] = obj[key];
   }
+  return keyValue;
 };
-
-const DestinationFilterMapping = {
-  city: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-    key: "origin.city"
-  },
-  stateuf: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-    key: "origin.state.uf"
-  },
-  statename: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-    key: "origin.state.name"
-  },
-  statebase: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-    key: "destination.state.uf"
-  }
-};
-
-const querysfreight = [];
 
 const freightaggregate = async (groupby, conditions) => {
   const data = await Freight.aggregate([
@@ -74,141 +40,22 @@ const freightaggregate = async (groupby, conditions) => {
   return Array.from(Object.keys(data), p => data[p]._id);
 };
 
-const FreightFilterMapping = {
-  site: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
-  },
-  status: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
-  },
-  km: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-    format: stringToRegexQuery
-  },
-  price: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-    format: stringToRegexQuery
-  },
-  weight: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-    format: stringToRegexQuery
-  },
-  cargo: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-    format: stringToRegexQuery
-  },
-  especie: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-    format: stringToRegexQuery
-  },
-  complement: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-    format: stringToRegexQuery
-  },
-  tracking: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-    format: stringToRegexQuery
-  },
-  note: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-    format: stringToRegexQuery
-  },
-  vehicles: {
-    type: FILTER_CONDITION_TYPE.CUSTOM_CONDITION,
-    format: vehicles => {
-      if (!vehicles) return [];
-      return { vehicles: { $in: vehicles } };
-    }
-  },
-  bodies: {
-    type: FILTER_CONDITION_TYPE.CUSTOM_CONDITION,
-    format: bodies => {
-      if (!bodies) return [];
-      return { bodies: { $in: bodies } };
-    }
-  },
-  origincode: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-    key: "origin.code"
-  },
-  origincity: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-    key: "origin.city"
-  },
-  originstateuf: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-    key: "origin.state.uf"
-  },
-  originstatename: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-    key: "origin.state.name"
-  },
-  destinationcode: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-    key: "destination.code"
-  },
-  destinationcity: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-    key: "destination.city"
-  },
-  destinationstateuf: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-    key: "destination.state.uf"
-  },
-  destinationstatename: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-    key: "destination.state.name"
-  },
-  companyname: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-    key: "company.name"
-  },
-  companylevel: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-    key: "company.level"
-  },
-  companystatus: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-    key: "company.status"
-  },
-  company_id: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-    key: "company._id"
-  }
-};
-
 export default {
   Query: {
     stateOrigin: async (parent, args, context, info) => {
-      const { conditions } = buildMongoConditionsFromFilters(
-        null,
-        args.filter,
-        OriginFilterMapping
-      );
+      const conditions = convertJsonToDot(args.filter);
       return await freightaggregate("origin.state.uf", conditions);
     },
     stateDestination: async (parent, args, context, info) => {
-      const { conditions } = buildMongoConditionsFromFilters(
-        null,
-        args.filter,
-        DestinationFilterMapping
-      );
+      const conditions = convertJsonToDot(args.filter);
       return await freightaggregate("destination.state.uf", conditions);
     },
     cityOrigin: async (parent, args, context, info) => {
-      const { conditions } = buildMongoConditionsFromFilters(
-        null,
-        args.filter,
-        OriginFilterMapping
-      );
+      const conditions = convertJsonToDot(args.filter);
       return await freightaggregate("origin.city", conditions);
     },
     cityDestination: async (parent, args, context, info) => {
-      const { conditions } = buildMongoConditionsFromFilters(
-        null,
-        args.filter,
-        DestinationFilterMapping
-      );
+      const conditions = convertJsonToDot(args.filter);
       return await freightaggregate("destination.city", conditions);
     },
     freight: async (parent, { _id }, context, info) => {
@@ -218,14 +65,13 @@ export default {
         .exec();
     },
     freights: async (parent, args, context, info) => {
-      const { page, perpage, filter } = args;
-
-      const { conditions } = buildMongoConditionsFromFilters(
-        null,
-        filter,
-        FreightFilterMapping
-      );
-
+      const { page = 1, perpage = 20, filter } = args;
+      const { vehicles, bodies, ...resto } = convertJsonToDot(filter);
+      const conditions = {
+        vehicles: !vehicles ? [] : { vehicles: { $in: vehicles } },
+        bodies: !bodies ? [] : { bodies: { $in: bodies } },
+        ...resto
+      };
       const res = await Freight.aggregate([
         {
           $lookup: {
@@ -254,9 +100,9 @@ export default {
         { $unwind: "$destination" },
         { $unwind: "$origin" },
         { $unwind: "$company" },
-        { $match: conditions }
-        // skip
-        // limit
+        { $match: conditions },
+        { $skip: (page - 1) * perpage },
+        { $limit: perpage }
       ]).exec();
 
       const totalcount = await Freight.countDocuments(conditions).exec();

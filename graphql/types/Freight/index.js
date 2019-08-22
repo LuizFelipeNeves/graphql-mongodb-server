@@ -32,28 +32,45 @@ export default `
     freights: [Freight!]!
   }
 
+  input InputQueryState {
+    destination: InputCiyStateOptional
+    origin: InputCiyStateOptional
+  }
+
+  input InputCiyStateOptional {
+    city: String
+    state: InputStateOptional
+  }
+
+  input InputCiyStateO {
+    city: String
+    state: InputStateOptional
+  }
+
+  input InputCiyStateR {
+    city: String
+    state: InputStateUFR
+  }
+
+  input InputQueryCityOrigin {
+    destination: InputCiyStateO
+    origin: InputCiyStateR!
+  }
+
+  input InputQueryCityDestination {
+    destination: InputCiyStateR!
+    origin: InputCiyStateO
+  }
+
   type Query {
     stateOrigin(filter: InputQueryState): [String!]!
     stateDestination(filter: InputQueryState): [String!]!
 
-    cityOrigin(filter: InputQuerStateRequired): [String!]!
-    cityDestination(filter: InputQuerStateRequired): [String!]!
+    cityOrigin(filter: InputQueryCityOrigin): [String!]!
+    cityDestination(filter: InputQueryCityDestination): [String!]!
     
     freight(_id: ID!): Freight!
     freights(page: Int, perpage: Int, filter: InputFreights): OutputFreight!
-  }
-
-  input InputQueryState {
-    city: String
-    stateuf: String
-    statename: String
-  }
-
-  input InputQuerStateRequired {
-    city: String
-    stateuf: String
-    statename: String
-    statebase: String!
   }
 
   input InputFreights {
@@ -61,18 +78,9 @@ export default `
     vehicles: [String]
     bodies: [String]
 
-    origin_id: ID
-    origincode: String
-    origincity: String
-    originstatename: String
-    originstateuf: String
-
-    destination_id: ID
-    destinationcode: String
-    destinationcity: String
-    destinationstatename: String
-    destinationstateuf: String
-
+    origin: InputLocation
+    destination: InputLocation
+    
     company_id: ID
     companyname: String
     companylevel: Int

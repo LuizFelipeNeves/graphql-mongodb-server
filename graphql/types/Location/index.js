@@ -32,6 +32,11 @@ export default `
     name: String
   }
 
+  input InputStateUFR {
+    uf: String!
+    name: String
+  }
+
   input InputLocations {
     city: String,
     state: InputStateOptional

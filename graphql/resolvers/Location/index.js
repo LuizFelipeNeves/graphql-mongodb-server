@@ -1,36 +1,21 @@
 import Location from "../../../server/models/Location";
-import {
-  buildMongoConditionsFromFilters,
-  FILTER_CONDITION_TYPE
-} from "@entria/graphql-mongo-helpers";
 
-const LocationFilterMapping = {
-  code: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
-  },
-  city: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
-  },
-  stateuf: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-    key: "state.uf"
-  },
-  statename: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-    key: "state.name"
+const convertJsonToDot = (obj, parent = [], keyValue = {}) => {
+  for (let key in obj) {
+    let keyPath = [...parent, key];
+    if (obj[key] !== null && typeof obj[key] === "object") {
+      Object.assign(keyValue, convertJsonToDot(obj[key], keyPath, keyValue));
+    } else keyValue[keyPath.join(".")] = obj[key];
   }
+  return keyValue;
 };
 
 export default {
   Query: {
     location: async (parent, { filter }, context, info) => {
       if (!filter) throw new Error("Insert a param.");
-      const filterResult = buildMongoConditionsFromFilters(
-        null,
-        filter,
-        LocationFilterMapping
-      );
-      return await Location.findOne(filterResult.conditions).exec();
+      const conditions = convertJsonToDot(filter);
+      return await Location.findOne(conditions).exec();
     },
     locations: async (parent, { page, perpage, fiter }, context, info) => {
       const filterResult = buildMongoConditionsFromFilters(

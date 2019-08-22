@@ -1,25 +1,18 @@
 import Company from "../../../server/models/Company";
-import {
-  buildMongoConditionsFromFilters,
-  FILTER_CONDITION_TYPE
-} from "@entria/graphql-mongo-helpers";
 import Freight from "../../../server/models/Freight";
+
+const convertJsonToDot = (obj, parent = [], keyValue = {}) => {
+  for (let key in obj) {
+    let keyPath = [...parent, key];
+    if (obj[key] !== null && typeof obj[key] === "object") {
+      Object.assign(keyValue, convertJsonToDot(obj[key], keyPath, keyValue));
+    } else keyValue[keyPath.join(".")] = obj[key];
+  }
+  return keyValue;
+};
 
 const stringToRegexQuery = val => {
   return { $regex: new RegExp(val) };
-};
-
-const CompanyFilterMapping = {
-  level: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
-  },
-  status: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1
-  },
-  name: {
-    type: FILTER_CONDITION_TYPE.MATCH_1_TO_1,
-    format: stringToRegexQuery
-  }
 };
 
 export default {
@@ -31,12 +24,8 @@ export default {
       return company;
     },
     companys: async (parent, { page, perpage, filter }, context, info) => {
-      const filterResult = buildMongoConditionsFromFilters(
-        null,
-        filter,
-        CompanyFilterMapping
-      );
-      const companys = await Company.find(filterResult.conditions)
+      const conditions = convertJsonToDot(filter);
+      const companys = await Company.find(conditions)
         .skip(perpage * (page - 1))
         .limit(perpage)
         .exec();
