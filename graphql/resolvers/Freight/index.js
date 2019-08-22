@@ -67,11 +67,9 @@ export default {
     freights: async (parent, args, context, info) => {
       const { page = 1, perpage = 20, filter } = args;
       const { vehicles, bodies, ...resto } = convertJsonToDot(filter);
-      const conditions = {
-        vehicles: !vehicles ? [] : { vehicles: { $in: vehicles } },
-        bodies: !bodies ? [] : { bodies: { $in: bodies } },
-        ...resto
-      };
+      const conditions = { ...resto };
+      if (vehicles) conditions.vehicles = { vehicles: { $in: vehicles } };
+      if (bodies) conditions.bodies = { bodies: { $in: bodies } };
       const res = await Freight.aggregate([
         {
           $lookup: {
