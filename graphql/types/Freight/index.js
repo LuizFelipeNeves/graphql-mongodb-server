@@ -66,25 +66,35 @@ export default `
     stateOrigin(filter: InputQueryState): [String!]!
     stateDestination(filter: InputQueryState): [String!]!
 
-    cityOrigin(filter: InputQueryCityOrigin): [String!]!
-    cityDestination(filter: InputQueryCityDestination): [String!]!
+    cityOrigin(filter: InputQueryCityOrigin!): [String!]!
+    cityDestination(filter: InputQueryCityDestination!): [String!]!
     
     freight(_id: ID!): Freight!
     freights(page: Int, perpage: Int, filter: InputFreights): OutputFreight!
+    freightsrange(page: Int, perpage: Int, filter: InputFreightsRange, range: Int!, coordinates: [Float!]!): OutputFreight!
   }
 
   input InputFreights {
     status: Boolean
     vehicles: [String]
     bodies: [String]
-
     origin: InputLocation
     destination: InputLocation
-    
-    company_id: ID
-    companyname: String
-    companylevel: Int
-    companystatus: Int
+    company: QueryFreigth
+  }
+
+  input InputFreightsRange {
+    status: Boolean
+    vehicles: [String]
+    bodies: [String]
+    company: QueryFreigth
+  }
+
+  input QueryFreigth {
+    _id: ID
+    name: String
+    level: Int
+    status: Int
   }
 
   type Mutation {
