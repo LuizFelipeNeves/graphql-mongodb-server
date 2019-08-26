@@ -131,17 +131,18 @@ export default {
       if (vehicles) conditions.vehicles = { vehicles: { $in: vehicles } };
       if (bodies) conditions.bodies = { bodies: { $in: bodies } };
       const res = await Freight.aggregate([
-        ...freightquery,
-        { $match: conditions },
-        /*{
+        {
           $geoNear: {
             near: { type: "Point", coordinates },
             distanceField: "dist.calculated",
             spherical: true,
             key: "origin.location",
-            maxDistance: range
+            includeLocs: "location",
+            maxDistance: range,
+            query: conditions
           }
-        },*/
+        },
+        ...freightquery,
         { $skip: (page - 1) * perpage },
         { $limit: perpage }
       ]).exec();
