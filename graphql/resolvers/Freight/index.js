@@ -130,22 +130,31 @@ export default {
       const conditions = { ...resto };
       if (vehicles) conditions.vehicles = { vehicles: { $in: vehicles } };
       if (bodies) conditions.bodies = { bodies: { $in: bodies } };
-      const res = await Freight.aggregate([
-        {
-          $geoNear: {
-            near: { type: "Point", coordinates },
-            distanceField: "dist.calculated",
-            spherical: true,
-            key: "origin.location",
-            includeLocs: "location",
-            maxDistance: range,
-            query: conditions
-          }
-        },
-        ...freightquery,
-        { $skip: (page - 1) * perpage },
-        { $limit: perpage }
+      const list = await Freight.aggregate([
+        ...freightquery
+        // { $out: "aggr_out" }
       ]).exec();
+
+      console.log(list);
+
+      const res = await list
+        .aggregate(
+          {
+            $geoNear: {
+              near: { type: "Point", coordinates },
+              distanceField: "dist.calculated",
+              spherical: true,
+              key: "origin.location",
+              // includeLocs: "location",
+              maxDistance: range,
+              query: conditions
+            }
+          },
+          { $skip: (page - 1) * perpage },
+          { $limit: perpage }
+        )
+        .exec();
+
       return freightfinalquery(res, conditions, page, perpage);
     }
   },
