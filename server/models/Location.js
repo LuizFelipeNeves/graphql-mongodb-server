@@ -1,8 +1,19 @@
 import mongoose from "mongoose";
+import { ObjectID } from "mongodb";
+
+const Schema = mongoose.Schema;
+
+ObjectID.prototype.valueOf = function() {
+  return this.toString();
+};
 
 /* https://mongoosejs.com/docs/geojson.html */
-const Schema = mongoose.Schema;
+
 const LocSchema = new Schema({
+  code: {
+    type: String,
+    required: true
+  },
   city: {
     type: String,
     required: true

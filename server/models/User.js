@@ -1,7 +1,14 @@
 import mongoose from "mongoose";
 // import bcrypt from "bcrypt";
 
+import { ObjectID } from "mongodb";
+
 const Schema = mongoose.Schema;
+
+ObjectID.prototype.valueOf = function() {
+  return this.toString();
+};
+
 const UserSchema = new Schema(
   {
     first_name: {
