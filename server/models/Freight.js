@@ -1,12 +1,6 @@
 import mongoose from "mongoose";
-import { ObjectID } from "mongodb";
 
 const Schema = mongoose.Schema;
-
-ObjectID.prototype.valueOf = function() {
-  return this.toString();
-};
-
 const FreightSchema = new Schema(
   {
     origin: {
@@ -83,14 +77,11 @@ const FreightSchema = new Schema(
     telephone: [{ type: String }],
     whatsapp: [{ type: String }],
     sac: [{ type: String }],
-    url: {
-      type: String,
-      unique: true
-    },
     company: {
       type: Schema.Types.ObjectId,
       ref: "Company"
     },
+    url: String,
     site: String
   },
   { timestamps: { updatedAt: "updated_at", createdAt: "created_at" } }
