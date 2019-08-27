@@ -1,6 +1,5 @@
 import Freight from "../../../server/models/Freight";
 import Company from "../../../server/models/Company";
-import Location from "../../../server/models/Location";
 
 const stringToRegexQuery = val => ({ $regex: new RegExp(val) });
 
@@ -17,30 +16,12 @@ const convertJsonToDot = (obj, parent = [], keyValue = {}) => {
 const freightquery = [
   {
     $lookup: {
-      from: "locations",
-      localField: "origin",
-      foreignField: "_id",
-      as: "origin"
-    }
-  },
-  {
-    $lookup: {
-      from: "locations",
-      localField: "destination",
-      foreignField: "_id",
-      as: "destination"
-    }
-  },
-  {
-    $lookup: {
       from: "companies",
       localField: "company",
       foreignField: "_id",
       as: "company"
     }
   },
-  { $unwind: "$destination" },
-  { $unwind: "$origin" },
   { $unwind: "$company" }
 ];
 
@@ -162,12 +143,6 @@ export default {
     createFreight: async (parent, { freight }, context, info) => {
       const creator = await Company.findById(freight.company);
       if (!creator) throw new Error("Company not found.");
-
-      const origin = await Location.findById(freight.origin);
-      if (!origin) throw new Error("Origin not found.");
-
-      const destination = await Location.findById(freight.destination);
-      if (!destination) throw new Error("Destination not found.");
       return await Freight.create(freight);
     },
     updateFreight: async (parent, { _id, freight }, context, info) => {
@@ -195,18 +170,4 @@ export default {
       }
     }
   }
-  /*
-  // Pode ser usado para inserir campos a mais.. com querys prontas
-  ou fazer relacionamentos
-
-  Freight: {
-    origin: async ({ origin }, args, context, info) => { // parent
-      console.log(origin);
-      return await Location.findOne({ _id: origin });
-    },
-    destination: async ({ destination }, args, context, info) => {
-      console.log(destination);
-      return await Location.findOne({ _id: destination });
-    }
-  }*/
 };

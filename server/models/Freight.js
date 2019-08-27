@@ -10,12 +10,58 @@ ObjectID.prototype.valueOf = function() {
 const FreightSchema = new Schema(
   {
     origin: {
-      type: Schema.Types.ObjectId,
-      ref: "Location"
+      city: {
+        type: String,
+        required: true
+      },
+      state: {
+        uf: {
+          type: String,
+          required: true
+        },
+        name: {
+          type: String,
+          required: true
+        }
+      },
+      location: {
+        type: {
+          type: String,
+          enum: ["Point"],
+          required: true
+        },
+        coordinates: {
+          type: [Number],
+          required: true
+        }
+      }
     },
     destination: {
-      type: Schema.Types.ObjectId,
-      ref: "Location"
+      city: {
+        type: String,
+        required: true
+      },
+      state: {
+        uf: {
+          type: String,
+          required: true
+        },
+        name: {
+          type: String,
+          required: true
+        }
+      },
+      location: {
+        type: {
+          type: String,
+          enum: ["Point"],
+          required: true
+        },
+        coordinates: {
+          type: [Number],
+          required: true
+        }
+      }
     },
     status: {
       type: Boolean,
@@ -37,18 +83,22 @@ const FreightSchema = new Schema(
     telephone: [{ type: String }],
     whatsapp: [{ type: String }],
     sac: [{ type: String }],
-
-    company: {
-      type: Schema.Types.ObjectId,
-      ref: "Company"
-    },
     url: {
       type: String,
       unique: true
+    },
+    company: {
+      type: Schema.Types.ObjectId,
+      ref: "Company"
     },
     site: String
   },
   { timestamps: { updatedAt: "updated_at", createdAt: "created_at" } }
 );
+
+FreightSchema.index({
+  "origin.location": "2dsphere",
+  "destination.location": "2dsphere"
+});
 
 export default mongoose.model("Freight", FreightSchema);
