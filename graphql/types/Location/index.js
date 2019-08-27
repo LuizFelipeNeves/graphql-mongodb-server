@@ -1,7 +1,6 @@
 export default `
   type Location {
     _id: ID!
-    code: String!
     city: String!
     state: State!
     location: Position!
@@ -15,6 +14,11 @@ export default `
     coordinates: [Float]!
   }
 
+  input inputPosition {
+    type: String!
+    coordinates: [Float]!
+  }
+
   type Query {
     location(filter: InputLocation): Location!
     locations(page: Int, perpage: Int, filter: InputLocations): OutputLocations
@@ -22,7 +26,6 @@ export default `
 
   input InputLocation {
     _id: ID
-    code: String
     city: String
     state: InputStateOptional
   }
@@ -35,6 +38,12 @@ export default `
   input InputStateUFR {
     uf: String!
     name: String
+  }
+
+  input inputLocation {
+    city: String!
+    state: InputStateUFR!
+    location: inputPosition!
   }
 
   input InputLocations {

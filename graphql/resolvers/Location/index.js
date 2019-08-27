@@ -18,12 +18,8 @@ export default {
       return await Location.findOne(conditions).exec();
     },
     locations: async (parent, { page, perpage, fiter }, context, info) => {
-      const filterResult = buildMongoConditionsFromFilters(
-        null,
-        fiter,
-        LocationFilterMapping
-      );
-      const locations = await Location.find(filterResult.conditions)
+      const conditions = convertJsonToDot(filter);
+      const locations = await Location.find(conditions)
         .skip(perpage * (page - 1))
         .limit(perpage)
         .exec();
@@ -38,7 +34,6 @@ export default {
         hasnextpage,
         locations: locations.map(u => ({
           _id: u._id.toString(),
-          code: u.code,
           city: u.city,
           state: u.state,
           location: u.location

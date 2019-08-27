@@ -106,8 +106,8 @@ export default `
   input CreateFreightInput {
     url: String
     site: String
-    origin: ID!
-    destination: ID!
+    origin: inputLocation!
+    destination: inputLocation!
     status: Boolean
     weight: String
     cargo: String

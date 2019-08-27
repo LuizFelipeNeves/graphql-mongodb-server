@@ -87,9 +87,7 @@ export default {
     },
     freight: async (parent, { _id }, context, info) => {
       if (!_id) throw new Error("Insert id.");
-      return await Freight.findOne({ _id })
-        .populate("origin destination company")
-        .exec();
+      return await Freight.findOne({ _id }).exec();
     },
     freights: async (parent, args, context, info) => {
       const { page = 1, perpage = 20, filter } = args;
@@ -111,31 +109,21 @@ export default {
       const conditions = { ...resto };
       if (vehicles) conditions.vehicles = { vehicles: { $in: vehicles } };
       if (bodies) conditions.bodies = { bodies: { $in: bodies } };
-      const list = await Freight.aggregate([
-        ...freightquery
-        // { $out: "aggr_out" }
+      const res = await Freight.aggregate([
+        {
+          $geoNear: {
+            near: { type: "Point", coordinates },
+            distanceField: "dist.calculated",
+            spherical: true,
+            key: "origin.location",
+            // includeLocs: "location",
+            maxDistance: range,
+            query: conditions
+          }
+        },
+        { $skip: (page - 1) * perpage },
+        { $limit: perpage }
       ]).exec();
-
-      console.log(list);
-
-      const res = await list
-        .aggregate(
-          {
-            $geoNear: {
-              near: { type: "Point", coordinates },
-              distanceField: "dist.calculated",
-              spherical: true,
-              key: "origin.location",
-              // includeLocs: "location",
-              maxDistance: range,
-              query: conditions
-            }
-          },
-          { $skip: (page - 1) * perpage },
-          { $limit: perpage }
-        )
-        .exec();
-
       return freightfinalquery(res, conditions, page, perpage);
     }
   },
@@ -168,6 +156,11 @@ export default {
       subscribe: (parent, args, { pubsub }) => {
         //return pubsub.asyncIterator(channel)
       }
+    }
+  },
+  Freight: {
+    company: async ({ company }, args, context, info) => {
+      return await Company.findOne({ _id: company });
     }
   }
 };
