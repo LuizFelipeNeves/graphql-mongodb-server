@@ -2,7 +2,7 @@
   "name": "graphql-mongodb-server",
   "version": "1.0.0",
   "description": "A GraphQL MongoDB server.",
-  "main": "index.js",
+  "main": "./dist/index.js",
   "scripts": {
     "dev": "nodemon --exec babel-node server/index.js",
     "build": "babel . --out-dir dist --ignore node_modules/*",
