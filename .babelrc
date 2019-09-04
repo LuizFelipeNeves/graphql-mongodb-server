@@ -15,5 +15,10 @@
         "@babel/plugin-transform-async-to-generator",
         "@babel/plugin-proposal-class-properties",
         "@babel/plugin-syntax-dynamic-import"
-    ]
+    ],
+    "env": {
+        "development" : {
+          "compact": false
+        }
+    },
 }
