@@ -45,7 +45,6 @@
     "jest-dom": "^4.0.0"
   },
   "dependencies": {
-    "@entria/graphql-mongo-helpers": "0.0.1",
     "concurrently": "^4.1.1",
     "core-js": "^3.1.4",
     "dotenv": "^8.0.0",
