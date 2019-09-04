@@ -1,9 +1,5 @@
 {
-    "env": {
-        "development" : {
-          "compact": true
-        }
-      },
+    "compact": false,
     "presets": [
         [
             "@babel/preset-env",
