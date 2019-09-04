@@ -2,12 +2,10 @@
   "name": "graphql-mongodb-server",
   "version": "1.0.0",
   "description": "A GraphQL MongoDB server.",
-  "main": "index.js",
+  "main": "./dist/index.js",
   "scripts": {
-    "clean": "rm -rf build && mkdir build",
-    "build-server": "babel -d ./build ./server -s",
-    "build": "npm run clean && npm run build-server",
-    "start": "node ./build/index.js"
+    "start": "npm run dev",
+    "dev": "nodemon --exec babel-node server/index.js"
   },
   "keywords": [
     "graphql",
