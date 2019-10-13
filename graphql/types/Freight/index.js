@@ -18,7 +18,6 @@ export default `
 
     vehicles: [String]
     bodies: [String]
-    nextel: [String]
     cellphone: [String]
     telephone: [String]
     whatsapp: [String]
@@ -120,7 +119,6 @@ export default `
     
     vehicles: [String]!
     bodies: [String]!
-    nextel: [String]
     cellphone: [String]
     telephone: [String]
     whatsapp: [String]
@@ -145,7 +143,6 @@ export default `
 
     vehicles: [String]
     bodies: [String]
-    nextel: [String]
     cellphone: [String]
     telephone: [String]
     whatsapp: [String]

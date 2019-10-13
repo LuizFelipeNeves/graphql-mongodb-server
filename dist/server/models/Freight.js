@@ -81,8 +81,6 @@ var FreightSchema = new Schema((_ref = {
   type: String
 }]), (0, _defineProperty2["default"])(_ref, "bodies", [{
   type: String
-}]), (0, _defineProperty2["default"])(_ref, "nextel", [{
-  type: String
 }]), (0, _defineProperty2["default"])(_ref, "cellphone", [{
   type: String
 }]), (0, _defineProperty2["default"])(_ref, "telephone", [{

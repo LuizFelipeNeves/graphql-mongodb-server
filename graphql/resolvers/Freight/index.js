@@ -35,6 +35,7 @@ const freightaggregate = async (groupby, conditions) => {
 };
 
 const freightfinalquery = async (res, conditions, page, perpage) => {
+  await console.log(conditions);
   const totalcount = await Freight.countDocuments(conditions).exec();
   const hasnextpage = page < totalcount / perpage;
   return {
@@ -57,7 +58,6 @@ const freightfinalquery = async (res, conditions, page, perpage) => {
       note: u.note,
       vehicles: u.vehicles,
       bodies: u.bodies,
-      nextel: u.nextel,
       cellphone: u.cellphone,
       telephone: u.telephone,
       whatsapp: u.whatsapp,

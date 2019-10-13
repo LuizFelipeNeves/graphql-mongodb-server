@@ -18,7 +18,6 @@ var CompanySchema = new Schema({
   },
   logo: {
     type: String,
-    // TODOFIX: Buffer to use base64
     required: true
   },
   level: {

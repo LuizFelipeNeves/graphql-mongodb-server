@@ -110,9 +110,13 @@ function () {
         switch (_context2.prev = _context2.next) {
           case 0:
             _context2.next = 2;
-            return _Freight["default"].countDocuments(conditions).exec();
+            return console.log(conditions);
 
           case 2:
+            _context2.next = 4;
+            return _Freight["default"].countDocuments(conditions).exec();
+
+          case 4:
             totalcount = _context2.sent;
             hasnextpage = page < totalcount / perpage;
             return _context2.abrupt("return", {
@@ -136,7 +140,6 @@ function () {
                   note: u.note,
                   vehicles: u.vehicles,
                   bodies: u.bodies,
-                  nextel: u.nextel,
                   cellphone: u.cellphone,
                   telephone: u.telephone,
                   whatsapp: u.whatsapp,
@@ -146,7 +149,7 @@ function () {
               })
             });
 
-          case 5:
+          case 7:
           case "end":
             return _context2.stop();
         }

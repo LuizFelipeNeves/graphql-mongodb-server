@@ -5,9 +5,8 @@
   "main": "./dist/index.js",
   "scripts": {
     "dev": "nodemon --exec babel-node server/index.js",
-    "build-node": "babel . --out-dir dist --ignore node_modules,dist",
-    "start-node": "node dist/server/index.js",
-    "start": "npm run start-node"
+    "build": "babel . --out-dir dist --ignore node_modules,dist",
+    "start": "node dist/server/index.js"
   },
   "keywords": [
     "graphql",

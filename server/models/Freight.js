@@ -72,7 +72,6 @@ const FreightSchema = new Schema(
     note: String,
     vehicles: [{ type: String }],
     bodies: [{ type: String }],
-    nextel: [{ type: String }],
     cellphone: [{ type: String }],
     telephone: [{ type: String }],
     whatsapp: [{ type: String }],
