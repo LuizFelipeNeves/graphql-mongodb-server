@@ -1,4 +1,6 @@
-require("dotenv").config();
+import dotenv from "dotenv";
+dotenv.config();
+
 import { GraphQLServer, PubSub } from "graphql-yoga";
 import mongoose from "mongoose";
 
@@ -24,7 +26,11 @@ const context = {
 
 // Connect to MongoDB with Mongoose.
 mongoose
-  .connect(db, { useCreateIndex: true, useNewUrlParser: true })
+  .connect(db, {
+    useCreateIndex: true,
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
   .then(() => console.log("MongoDB connected"))
   .catch(err => console.log(err));
 
