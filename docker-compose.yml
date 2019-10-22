@@ -13,3 +13,4 @@ services:
       - mongodb
     environment:
       - mongoURI=mongodb://mongodb:27017/graphql-development
+      - NODE_ENV=production
