@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import schema from "../graphql/";
 import { models } from "./config/db/";
 
-import "../config/keys/keys";
+import "./config/keys";
 
 const pubsub = new PubSub();
 
