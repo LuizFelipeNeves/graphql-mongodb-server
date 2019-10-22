@@ -1,12 +1,10 @@
-import dotenv from "dotenv";
-dotenv.config();
-
 import { GraphQLServer, PubSub } from "graphql-yoga";
 import mongoose from "mongoose";
 
 import schema from "../graphql/";
 import { models } from "./config/db/";
 
+import "../config/keys/keys";
 const { mongoURI: db } = process.env;
 
 const pubsub = new PubSub();

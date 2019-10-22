@@ -1,5 +1,4 @@
-if (process.env.NODE_ENV === "production") {
-  module.exports = require("./keys_prod");
-} else {
-  module.exports = require("./keys_dev");
-}
+const env = process.env.NODE_ENV === "production" ? "prod" : "dev";
+const envConfig = require(`./keys_${env}`);
+
+Object.keys(envConfig).forEach(key => (process.env[key] = envConfig[key]));
